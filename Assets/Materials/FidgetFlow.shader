@@ -7,6 +7,11 @@ Shader "FidgetFlow/Kaleidoscope"
         _FlowSpeed ("Flow Speed", Float) = 0.3
         _WarpStrength ("Warp Strength", Float) = 1.5
         _ColorRamp ("Color Ramp", 2D) = "white" {}
+        _RampTiling ("Color Line Tightness", Float) = 1.0
+        _RampOffset ("Color Scroll Speed", Float) = 0.0
+        _RampContrast ("Color Smoothness", Range(0.1, 3)) = 1.0
+        _ZoomSpeed ("Zoom Speed", Float) = 0.2
+        _ZoomDirection ("Zoom Direction (-1 out, 1 in)", Float) = 1.0
     }
 
     SubShader
@@ -38,6 +43,11 @@ Shader "FidgetFlow/Kaleidoscope"
             float _NoiseScale;
             float _FlowSpeed;
             float _WarpStrength;
+            float _RampTiling;
+            float _RampOffset;
+            float _RampContrast;
+            float _ZoomSpeed;
+            float _ZoomDirection;
 
             TEXTURE2D(_ColorRamp);
             SAMPLER(sampler_ColorRamp);
@@ -87,6 +97,12 @@ Shader "FidgetFlow/Kaleidoscope"
             {
                 float2 uv = kaleido(IN.uv, _FoldCount);
 
+                // zoom: exponential scale over time creates a continuous tunnel feel
+                // fmod keeps the exponent bounded so it doesn't blow up over a long session
+                float zoomTime = fmod(_Time.y * _ZoomSpeed * _ZoomDirection, 10.0);
+                float zoomFactor = exp(zoomTime);
+                uv *= zoomFactor;
+
                 float2 warpOffset = float2(
                     noise(uv * _NoiseScale + _Time.y * _FlowSpeed),
                     noise(uv * _NoiseScale - _Time.y * _FlowSpeed)
@@ -95,7 +111,11 @@ Shader "FidgetFlow/Kaleidoscope"
                 float n = noise((uv + warpOffset * _WarpStrength) * _NoiseScale);
                 n = n * 0.5 + 0.5;
 
-                half4 rampColor = SAMPLE_TEXTURE2D(_ColorRamp, sampler_ColorRamp, float2(n, 0.5));
+                n = saturate((n - 0.5) * _RampContrast + 0.5);
+
+                float rampCoord = frac(n * _RampTiling + _RampOffset + _Time.y * 0.02);
+
+                half4 rampColor = SAMPLE_TEXTURE2D(_ColorRamp, sampler_ColorRamp, float2(rampCoord, 0.5));
                 return rampColor;
             }
             ENDHLSL
