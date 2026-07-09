@@ -10,8 +10,6 @@ Shader "FidgetFlow/Kaleidoscope"
         _RampTiling ("Color Line Tightness", Float) = 1.0
         _RampOffset ("Color Scroll Speed", Float) = 0.0
         _RampContrast ("Color Smoothness", Range(0.1, 3)) = 1.0
-        _ZoomSpeed ("Zoom Speed", Float) = 0.2
-        _ZoomDirection ("Zoom Direction (-1 out, 1 in)", Float) = 1.0
     }
 
     SubShader
@@ -46,8 +44,6 @@ Shader "FidgetFlow/Kaleidoscope"
             float _RampTiling;
             float _RampOffset;
             float _RampContrast;
-            float _ZoomSpeed;
-            float _ZoomDirection;
 
             TEXTURE2D(_ColorRamp);
             SAMPLER(sampler_ColorRamp);
@@ -86,6 +82,9 @@ Shader "FidgetFlow/Kaleidoscope"
                 float angle = atan2(centered.y, centered.x);
                 float radius = length(centered);
 
+                // normalize to positive range before fmod to fix quadrant asymmetry
+                angle = fmod(angle + TWO_PI, TWO_PI);
+
                 float segment = TWO_PI / folds;
                 angle = fmod(angle, segment);
                 angle = abs(angle - segment * 0.5);
@@ -96,12 +95,6 @@ Shader "FidgetFlow/Kaleidoscope"
             half4 frag(Varyings IN) : SV_Target
             {
                 float2 uv = kaleido(IN.uv, _FoldCount);
-
-                // zoom: exponential scale over time creates a continuous tunnel feel
-                // fmod keeps the exponent bounded so it doesn't blow up over a long session
-                float zoomTime = fmod(_Time.y * _ZoomSpeed * _ZoomDirection, 10.0);
-                float zoomFactor = exp(zoomTime);
-                uv *= zoomFactor;
 
                 float2 warpOffset = float2(
                     noise(uv * _NoiseScale + _Time.y * _FlowSpeed),
