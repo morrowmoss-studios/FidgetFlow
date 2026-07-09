@@ -6,10 +6,13 @@ Shader "FidgetFlow/Kaleidoscope"
         _NoiseScale ("Noise Scale", Float) = 7
         _FlowSpeed ("Flow Speed", Float) = 0.3
         _WarpStrength ("Warp Strength", Float) = 1.5
+        _RotationSpeed ("Rotation Speed", Float) = 0.1
+        _Octaves ("Noise Octaves", Range(1,6)) = 4
         _ColorRamp ("Color Ramp", 2D) = "white" {}
         _RampTiling ("Color Line Tightness", Float) = 1.0
         _RampOffset ("Color Scroll Speed", Float) = 0.0
         _RampContrast ("Color Smoothness", Range(0.1, 3)) = 1.0
+        _AngleColorShift ("Angle Color Shift", Float) = 0.3
     }
 
     SubShader
@@ -41,9 +44,12 @@ Shader "FidgetFlow/Kaleidoscope"
             float _NoiseScale;
             float _FlowSpeed;
             float _WarpStrength;
+            float _RotationSpeed;
+            float _Octaves;
             float _RampTiling;
             float _RampOffset;
             float _RampContrast;
+            float _AngleColorShift;
 
             TEXTURE2D(_ColorRamp);
             SAMPLER(sampler_ColorRamp);
@@ -76,13 +82,34 @@ Shader "FidgetFlow/Kaleidoscope"
                 return lerp(lerp(n00, n10, u.x), lerp(n01, n11, u.x), u.y);
             }
 
-            float2 kaleido(float2 uv, float folds)
+            // FBM: layered noise octaves for rich complex detail
+            float fbm(float2 p, int octaves)
+            {
+                float value = 0.0;
+                float amplitude = 0.5;
+                float frequency = 1.0;
+                for (int i = 0; i < octaves; i++)
+                {
+                    value += amplitude * noise(p * frequency);
+                    frequency *= 2.0;
+                    amplitude *= 0.5;
+                }
+                return value;
+            }
+
+            float2 kaleido(float2 uv, float folds, float rotation)
             {
                 float2 centered = uv - 0.5;
+
+                // rotate the whole pattern over time
+                float s = sin(rotation);
+                float c = cos(rotation);
+                centered = float2(c * centered.x - s * centered.y,
+                                  s * centered.x + c * centered.y);
+
                 float angle = atan2(centered.y, centered.x);
                 float radius = length(centered);
 
-                // normalize to positive range before fmod to fix quadrant asymmetry
                 angle = fmod(angle + TWO_PI, TWO_PI);
 
                 float segment = TWO_PI / folds;
@@ -94,19 +121,26 @@ Shader "FidgetFlow/Kaleidoscope"
 
             half4 frag(Varyings IN) : SV_Target
             {
-                float2 uv = kaleido(IN.uv, _FoldCount);
+                float rotation = _Time.y * _RotationSpeed;
+                float2 uv = kaleido(IN.uv, _FoldCount, rotation);
 
+                // angle for color shifting
+                float angle = atan2(uv.y, uv.x);
+
+                // domain warp using fbm for richer distortion
                 float2 warpOffset = float2(
-                    noise(uv * _NoiseScale + _Time.y * _FlowSpeed),
-                    noise(uv * _NoiseScale - _Time.y * _FlowSpeed)
+                    fbm(uv * _NoiseScale + _Time.y * _FlowSpeed, (int)_Octaves),
+                    fbm(uv * _NoiseScale - _Time.y * _FlowSpeed, (int)_Octaves)
                 );
 
-                float n = noise((uv + warpOffset * _WarpStrength) * _NoiseScale);
+                float n = fbm((uv + warpOffset * _WarpStrength) * _NoiseScale, (int)_Octaves);
                 n = n * 0.5 + 0.5;
 
                 n = saturate((n - 0.5) * _RampContrast + 0.5);
 
-                float rampCoord = frac(n * _RampTiling + _RampOffset + _Time.y * 0.02);
+                // angle shifts color phase so wedges have subtle color variety
+                float angleShift = (angle / TWO_PI) * _AngleColorShift;
+                float rampCoord = frac(n * _RampTiling + _RampOffset + angleShift + _Time.y * 0.02);
 
                 half4 rampColor = SAMPLE_TEXTURE2D(_ColorRamp, sampler_ColorRamp, float2(rampCoord, 0.5));
                 return rampColor;
