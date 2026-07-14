@@ -70,7 +70,6 @@ Shader "FidgetFlow/MandelbrotJulia"
                 return 0.5 + 0.5 * cos(TWO_PI * (t + float3(0.0, 0.333, 0.667)));
             }
 
-            // runs fractal for a given coordinate, returns color
             float3 fractalColor(float2 c, float2 juliaC, float iTime)
             {
                 float2 z, seed;
@@ -136,25 +135,25 @@ Shader "FidgetFlow/MandelbrotJulia"
                     _JuliaY + cos(iTime * _JuliaAnimSpeed * 0.7) * 0.3
                 );
 
-                // layer A: zoom phase 0->1
-                float tA = frac(iTime * _ZoomSpeed) * _ZoomDepth;
+                float phase = frac(iTime * _ZoomSpeed);
+
+                // layer A
+                float tA = phase * _ZoomDepth;
                 float zoomA = exp(tA);
                 float2 cA = uv / zoomA + target;
                 float3 colA = fractalColor(cA, juliaC, iTime);
 
-                // layer B: zoom phase offset by 0.5 so it's always at mid-zoom when A resets
-                float tB = frac(iTime * _ZoomSpeed + 0.5) * _ZoomDepth;
+                // layer B offset by half period
+                float tB = frac(phase + 0.5) * _ZoomDepth;
                 float zoomB = exp(tB);
                 float2 cB = uv / zoomB + target;
                 float3 colB = fractalColor(cB, juliaC, iTime);
 
-                // blend: crossfade smoothly between layers
-                // each layer fades out near its reset point (t near 0 or 1)
-                float phase = frac(iTime * _ZoomSpeed);
-                float blendA = smoothstep(0.0, 0.1, phase) * (1.0 - smoothstep(0.9, 1.0, phase));
-                float blendB = 1.0 - blendA;
+                // cosine weights - always sum to 1, perfectly smooth, no visible seam
+                float wA = 0.5 - 0.5 * cos(phase * TWO_PI);
+                float wB = 1.0 - wA;
 
-                float3 col = colA * blendA + colB * blendB;
+                float3 col = (colA * wA + colB * wB) / (wA + wB);
 
                 return half4(saturate(col), 1);
             }
