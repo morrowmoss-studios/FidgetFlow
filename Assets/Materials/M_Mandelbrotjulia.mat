@@ -98,13 +98,16 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 0
     - _AlphaToMask: 0
+    - _AutoZoomSpeed: 0.05
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
-    - _Brightness: 1.5
+    - _Brightness: 1.2
     - _BumpScale: 1
     - _CameraDistance: 2
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
+    - _ColorSpeed: 0.3
+    - _ColorSpread: 4
     - _Cull: 2
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
@@ -117,11 +120,18 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _GlowStrength: 0.8
-    - _Iterations: 10
+    - _InnerBrightness: 0.5
+    - _Iterations: 200
+    - _JuliaAnimSpeed: 0.2
+    - _JuliaX: -0.7
+    - _JuliaY: 0.27
     - _MaxSteps: 80
     - _Metallic: 0
+    - _Mode: 0
     - _OcclusionStrength: 1
     - _Offset: 1.5
+    - _PanX: 0
+    - _PanY: 0
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
@@ -133,9 +143,14 @@ Material:
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
+    - _TargetX: -0.7269
+    - _TargetY: 0.1889
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
+    - _Zoom: 1
+    - _ZoomDepth: 10
+    - _ZoomSpeed: 0.0475
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
