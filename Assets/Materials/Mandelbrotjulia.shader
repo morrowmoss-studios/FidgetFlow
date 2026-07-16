@@ -15,6 +15,10 @@ Shader "FidgetFlow/MandelbrotJulia"
         _ColorSpread ("Color Spread", Float) = 4.0
         _Brightness ("Brightness", Float) = 1.2
         _InnerBrightness ("Inner Brightness", Float) = 0.5
+        _AudioBass ("Audio Bass", Float) = 0
+        _AudioMid ("Audio Mid", Float) = 0
+        _AudioHigh ("Audio High", Float) = 0
+        _AudioEnergy ("Audio Energy", Float) = 0
     }
 
     SubShader
@@ -55,6 +59,10 @@ Shader "FidgetFlow/MandelbrotJulia"
             float _ColorSpread;
             float _Brightness;
             float _InnerBrightness;
+            float _AudioBass;
+            float _AudioMid;
+            float _AudioHigh;
+            float _AudioEnergy;
 
             Varyings vert(Attributes IN)
             {
@@ -109,16 +117,20 @@ Shader "FidgetFlow/MandelbrotJulia"
                 if (iter == 0.0)
                 {
                     float trap = sqrt(minLen);
-                    float colorT1 = trap * _ColorSpread + iTime * _ColorSpeed;
-                    float colorT2 = trap * _ColorSpread * 2.3 - iTime * _ColorSpeed * 0.5;
+                    // mid shifts inner color spread
+                    float dynamicSpread = _ColorSpread * (1.0 + _AudioMid * 1.5);
+                    float colorT1 = trap * dynamicSpread + iTime * _ColorSpeed;
+                    float colorT2 = trap * dynamicSpread * 2.3 - iTime * _ColorSpeed * 0.5;
                     float3 col = rainbow(colorT1) * 0.7 + rainbow(colorT2) * 0.3;
-                    return col * _InnerBrightness;
+                    return col * _InnerBrightness * (1.0 + _AudioEnergy);
                 }
 
-                float colorT1 = smoothIter * _ColorSpread * 0.08 + iTime * _ColorSpeed;
-                float colorT2 = smoothIter * _ColorSpread * 0.03 - iTime * _ColorSpeed * 0.4;
+                // high speeds up color cycling on escape bands
+                float dynamicColorSpeed = _ColorSpeed * (1.0 + _AudioHigh * 3.0);
+                float colorT1 = smoothIter * _ColorSpread * 0.08 + iTime * dynamicColorSpeed;
+                float colorT2 = smoothIter * _ColorSpread * 0.03 - iTime * dynamicColorSpeed * 0.4;
                 float3 col = rainbow(colorT1) * 0.7 + rainbow(colorT2) * 0.5;
-                return col * _Brightness;
+                return col * _Brightness * (1.0 + _AudioEnergy * 1.5);
             }
 
             half4 frag(Varyings IN) : SV_Target
@@ -137,19 +149,18 @@ Shader "FidgetFlow/MandelbrotJulia"
 
                 float phase = frac(iTime * _ZoomSpeed);
 
-                // layer A
-                float tA = phase * _ZoomDepth;
+                // bass pulses zoom speed on beat
+                float dynamicZoom = _ZoomSpeed * (1.0 + _AudioBass * 2.0);
+                float tA = frac(iTime * dynamicZoom) * _ZoomDepth;
                 float zoomA = exp(tA);
                 float2 cA = uv / zoomA + target;
                 float3 colA = fractalColor(cA, juliaC, iTime);
 
-                // layer B offset by half period
-                float tB = frac(phase + 0.5) * _ZoomDepth;
+                float tB = frac(iTime * dynamicZoom + 0.5) * _ZoomDepth;
                 float zoomB = exp(tB);
                 float2 cB = uv / zoomB + target;
                 float3 colB = fractalColor(cB, juliaC, iTime);
 
-                // cosine weights - always sum to 1, perfectly smooth, no visible seam
                 float wA = 0.5 - 0.5 * cos(phase * TWO_PI);
                 float wB = 1.0 - wA;
 

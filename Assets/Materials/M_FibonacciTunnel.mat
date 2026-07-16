@@ -25,23 +25,37 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _ArmCount: 1
+    - _ArmCount: 3
+    - _ArmWidth: 0.6
+    - _AudioBass: 0.073217966
+    - _AudioEnergy: 0.0582189
+    - _AudioHigh: 0.033383477
+    - _AudioMid: 0.049777403
     - _Brightness: 2
     - _ColorSpeed: 0.3
     - _ColorSpread: 4
     - _Density: 80
+    - _Divisions: 8
     - _DotSize: 0.3
     - _GlowFalloff: 8
+    - _GlowWidth: 0.3
+    - _GoldenSpiral: 0.5
     - _InnerBrightness: 0.5
     - _Iterations: 200
     - _JuliaAnimSpeed: 0.2
     - _JuliaX: -0.7
     - _JuliaY: 0.27
+    - _LayerCount: 4
+    - _Layers: 4
+    - _LineWidth: 0.15
     - _Mode: 0
+    - _RotationSpeed: 0.1
     - _TargetX: -0.7269
     - _TargetY: 0.1889
+    - _Tightness: 6
+    - _Twist: 2.5
     - _ZoomDepth: 10
-    - _ZoomSpeed: 0.15
+    - _ZoomSpeed: 0.3
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1

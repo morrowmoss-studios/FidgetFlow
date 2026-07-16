@@ -13,6 +13,10 @@ Shader "FidgetFlow/LavaLamp"
         _CameraZ ("Camera Distance", Float) = 6.0
         _AspectRatio ("Aspect Ratio", Float) = 0.462
         _FOV ("Field of View", Float) = 1.2
+        _AudioBass ("Audio Bass", Float) = 0
+        _AudioMid ("Audio Mid", Float) = 0
+        _AudioHigh ("Audio High", Float) = 0
+        _AudioEnergy ("Audio Energy", Float) = 0
     }
 
     SubShader
@@ -51,6 +55,10 @@ Shader "FidgetFlow/LavaLamp"
             float _CameraZ;
             float _AspectRatio;
             float _FOV;
+            float _AudioBass;
+            float _AudioMid;
+            float _AudioHigh;
+            float _AudioEnergy;
 
             Varyings vert(Attributes IN)
             {
@@ -71,7 +79,7 @@ Shader "FidgetFlow/LavaLamp"
                 return frac(sin(n) * 43758.5453);
             }
 
-            float scene(float3 p, float t)
+            float scene(float3 p, float t, float blobSize, float flowSpeed, float blendSmooth)
             {
                 float d = 100.0;
                 int count = (int)_BlobCount;
@@ -79,40 +87,46 @@ Shader "FidgetFlow/LavaLamp"
                 for (int i = 0; i < count; i++)
                 {
                     float fi = float(i);
-                    float speed = (hash(fi * 3.7) - 0.5) * 2.0 * _FlowSpeed;
+                    float speed = (hash(fi * 3.7) - 0.5) * 2.0 * flowSpeed;
 
-                    // equal spread in all three axes
                     float3 offset = float3(
-                        sin(t * speed       + fi * 52.5) * 2.0,
-                        cos(t * speed * 0.8 + fi * 23.1) * 2.0,
-                        sin(t * speed * 0.6 + fi * 17.9) * 2.0
+                        sin(t * speed       + fi * 52.5) * 1.8,
+                        cos(t * speed * 0.8 + fi * 23.1) * 1.8,
+                        sin(t * speed * 0.6 + fi * 17.9) * 1.8
                     );
 
-                    float radius = _BlobSize * (0.7 + hash(fi * 7.3) * 0.6);
+                    float radius = blobSize * (0.7 + hash(fi * 7.3) * 0.6);
                     float sphere = length(p - offset) - radius;
-                    d = smin(d, sphere, _BlendSmoothness);
+                    d = smin(d, sphere, blendSmooth);
                 }
 
                 return d;
             }
 
-            float3 getNormal(float3 p, float t)
+            float3 getNormal(float3 p, float t, float blobSize, float flowSpeed, float blendSmooth)
             {
                 float2 e = float2(0.002, 0.0);
                 return normalize(float3(
-                    scene(p + e.xyy, t) - scene(p - e.xyy, t),
-                    scene(p + e.yxy, t) - scene(p - e.yxy, t),
-                    scene(p + e.yyx, t) - scene(p - e.yyx, t)
+                    scene(p + e.xyy, t, blobSize, flowSpeed, blendSmooth) - scene(p - e.xyy, t, blobSize, flowSpeed, blendSmooth),
+                    scene(p + e.yxy, t, blobSize, flowSpeed, blendSmooth) - scene(p - e.yxy, t, blobSize, flowSpeed, blendSmooth),
+                    scene(p + e.yyx, t, blobSize, flowSpeed, blendSmooth) - scene(p - e.yyx, t, blobSize, flowSpeed, blendSmooth)
                 ));
             }
 
             half4 frag(Varyings IN) : SV_Target
             {
                 float2 uv = IN.uv * 2.0 - 1.0;
-                // aspect and FOV both exposed as properties now
                 uv.x *= _AspectRatio;
 
                 float t = _Time.y;
+
+                // bass swells blob size on beat
+                float dynamicBlobSize = _BlobSize * (1.0 + _AudioBass * 0.8);
+                // mid speeds up flow
+                float dynamicFlow = _FlowSpeed * (1.0 + _AudioMid * 2.0);
+                // high adds jitter by tightening blend
+                float dynamicBlend = _BlendSmoothness * (1.0 - _AudioHigh * 0.4);
+                dynamicBlend = max(dynamicBlend, 0.1);
 
                 float3 camPos = float3(0.0, 0.0, _CameraZ);
                 float3 rayDir = normalize(float3(uv.x, uv.y, -_FOV));
@@ -124,7 +138,7 @@ Shader "FidgetFlow/LavaLamp"
                 for (int i = 0; i < 80; i++)
                 {
                     p = camPos + rayDir * depth;
-                    float dist = scene(p, t);
+                    float dist = scene(p, t, dynamicBlobSize, dynamicFlow, dynamicBlend);
                     depth += dist;
                     if (dist < 0.001)
                     {
@@ -140,7 +154,7 @@ Shader "FidgetFlow/LavaLamp"
                     return half4(bg, 1);
                 }
 
-                float3 normal = getNormal(p, t);
+                float3 normal = getNormal(p, t, dynamicBlobSize, dynamicFlow, dynamicBlend);
                 float3 lightDir = normalize(float3(0.5, 1.0, 1.0));
                 float3 viewDir = normalize(-rayDir);
 
@@ -156,10 +170,11 @@ Shader "FidgetFlow/LavaLamp"
                 col += fresnel * 0.4;
 
                 float3 finalColor = col * (diff * 0.8 + 0.25) + spec * 0.6;
-                finalColor *= _Brightness;
+                // energy drives brightness
+                finalColor *= _Brightness * (1.0 + _AudioEnergy * 1.5);
                 finalColor *= exp(-depth * 0.04);
 
-                return half4(finalColor, 1);
+                return half4(saturate(finalColor), 1);
             }
             ENDHLSL
         }

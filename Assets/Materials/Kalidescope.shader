@@ -13,6 +13,10 @@ Shader "FidgetFlow/Kaleidoscope"
         _RampOffset ("Color Scroll Speed", Float) = 0.0
         _RampContrast ("Color Smoothness", Range(0.1, 3)) = 1.0
         _AngleColorShift ("Angle Color Shift", Float) = 0.3
+        _AudioBass ("Audio Bass", Float) = 0
+        _AudioMid ("Audio Mid", Float) = 0
+        _AudioHigh ("Audio High", Float) = 0
+        _AudioEnergy ("Audio Energy", Float) = 0
     }
 
     SubShader
@@ -50,6 +54,10 @@ Shader "FidgetFlow/Kaleidoscope"
             float _RampOffset;
             float _RampContrast;
             float _AngleColorShift;
+            float _AudioBass;
+            float _AudioMid;
+            float _AudioHigh;
+            float _AudioEnergy;
 
             TEXTURE2D(_ColorRamp);
             SAMPLER(sampler_ColorRamp);
@@ -82,7 +90,6 @@ Shader "FidgetFlow/Kaleidoscope"
                 return lerp(lerp(n00, n10, u.x), lerp(n01, n11, u.x), u.y);
             }
 
-            // FBM: layered noise octaves for rich complex detail
             float fbm(float2 p, int octaves)
             {
                 float value = 0.0;
@@ -100,8 +107,6 @@ Shader "FidgetFlow/Kaleidoscope"
             float2 kaleido(float2 uv, float folds, float rotation)
             {
                 float2 centered = uv - 0.5;
-
-                // rotate the whole pattern over time
                 float s = sin(rotation);
                 float c = cos(rotation);
                 centered = float2(c * centered.x - s * centered.y,
@@ -121,29 +126,44 @@ Shader "FidgetFlow/Kaleidoscope"
 
             half4 frag(Varyings IN) : SV_Target
             {
-                float rotation = _Time.y * _RotationSpeed;
-                float2 uv = kaleido(IN.uv, _FoldCount, rotation);
+                float iTime = _Time.y;
 
-                // angle for color shifting
+                // bass pulses fold count — beat drops add petals
+                float dynamicFolds = _FoldCount + _AudioBass * 4.0;
+                // bass also pulses warp strength
+                float dynamicWarp = _WarpStrength * (1.0 + _AudioBass * 2.0);
+                // mid speeds up flow
+                float dynamicFlow = _FlowSpeed * (1.0 + _AudioMid * 2.0);
+                // high tightens noise scale
+                float dynamicNoise = _NoiseScale * (1.0 + _AudioHigh * 0.5);
+                // rotation speeds up with energy
+                float dynamicRotation = _RotationSpeed * (1.0 + _AudioEnergy * 2.0);
+
+                float rotation = iTime * dynamicRotation;
+                float2 uv = kaleido(IN.uv, dynamicFolds, rotation);
+
                 float angle = atan2(uv.y, uv.x);
 
-                // domain warp using fbm for richer distortion
                 float2 warpOffset = float2(
-                    fbm(uv * _NoiseScale + _Time.y * _FlowSpeed, (int)_Octaves),
-                    fbm(uv * _NoiseScale - _Time.y * _FlowSpeed, (int)_Octaves)
+                    fbm(uv * dynamicNoise + iTime * dynamicFlow, (int)_Octaves),
+                    fbm(uv * dynamicNoise - iTime * dynamicFlow, (int)_Octaves)
                 );
 
-                float n = fbm((uv + warpOffset * _WarpStrength) * _NoiseScale, (int)_Octaves);
+                float n = fbm((uv + warpOffset * dynamicWarp) * dynamicNoise, (int)_Octaves);
                 n = n * 0.5 + 0.5;
-
                 n = saturate((n - 0.5) * _RampContrast + 0.5);
 
-                // angle shifts color phase so wedges have subtle color variety
                 float angleShift = (angle / TWO_PI) * _AngleColorShift;
-                float rampCoord = frac(n * _RampTiling + _RampOffset + angleShift + _Time.y * 0.02);
+                // energy drives color scroll speed
+                float dynamicColorSpeed = _RampOffset + _AudioEnergy * 0.05;
+                float rampCoord = frac(n * _RampTiling + dynamicColorSpeed + angleShift + iTime * 0.02);
 
                 half4 rampColor = SAMPLE_TEXTURE2D(_ColorRamp, sampler_ColorRamp, float2(rampCoord, 0.5));
-                return rampColor;
+
+                // energy drives brightness
+                rampColor.rgb *= (1.0 + _AudioEnergy * 1.5);
+
+                return half4(saturate(rampColor.rgb), 1);
             }
             ENDHLSL
         }

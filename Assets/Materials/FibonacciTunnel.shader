@@ -10,6 +10,10 @@ Shader "FidgetFlow/FibonacciTunnel"
         _LineWidth ("Line Width", Float) = 0.15
         _GoldenSpiral ("Golden Spiral Mix", Range(0,1)) = 0.5
         _Layers ("Layers", Float) = 4.0
+        _AudioBass ("Audio Bass", Float) = 0
+        _AudioMid ("Audio Mid", Float) = 0
+        _AudioHigh ("Audio High", Float) = 0
+        _AudioEnergy ("Audio Energy", Float) = 0
     }
 
     SubShader
@@ -45,6 +49,10 @@ Shader "FidgetFlow/FibonacciTunnel"
             float _LineWidth;
             float _GoldenSpiral;
             float _Layers;
+            float _AudioBass;
+            float _AudioMid;
+            float _AudioHigh;
+            float _AudioEnergy;
 
             Varyings vert(Attributes IN)
             {
@@ -66,38 +74,41 @@ Shader "FidgetFlow/FibonacciTunnel"
                 if (r < 0.0001) return float4(0,0,0,0);
 
                 float phi = 1.6180339887;
+
+                // bass pulses the rotation speed
+                float dynamicRotation = _RotationSpeed * (1.0 + _AudioBass * 3.0);
+                float angle = atan2(uv.y, uv.x) + iTime * dynamicRotation;
+
                 float logR = log(r + 0.001) + zoom;
 
-                // camera counter-spin applied per layer
-                float angle = atan2(uv.y, uv.x) + iTime * _RotationSpeed;
-
-                // RADIAL RINGS: fibonacci-spaced concentric rings
-                // logR in phi-space gives rings at golden ratio intervals
-                float ringPhase = frac(logR / log(phi));
+                // RADIAL RINGS — bass makes them pulse outward
+                float ringScale = 1.0 + _AudioBass * 2.0;
+                float ringPhase = frac(logR * ringScale / log(phi));
                 float ring = exp(-pow((ringPhase - 0.5) * 2.0, 2.0) / (_LineWidth * _LineWidth));
 
-                // ANGULAR SPOKES: divide circle by fibonacci number
-                // no atan2 seam because we use the full angle range
-                float spokePhase = frac(angle * _Divisions / TWO_PI);
+                // ANGULAR SPOKES — mid frequencies flare the spokes
+                float spokeDivisions = _Divisions * (1.0 + _AudioMid * 0.5);
+                float spokePhase = frac(angle * spokeDivisions / TWO_PI);
                 float spoke = exp(-pow((spokePhase - 0.5) * 2.0, 2.0) / (_LineWidth * _LineWidth));
 
-                // GOLDEN SPIRAL: mix in a logarithmic spiral on top
-                // this is where the fibonacci nature really shows
-                float spiralAngle = angle / TWO_PI;
-                float spiralPhase = frac(logR * 1.618 - spiralAngle * _Divisions);
+                // GOLDEN SPIRAL — high frequencies tighten the spiral
+                float spiralTightness = 1.618 + _AudioHigh * 2.0;
+                float spiralPhase = frac(logR * spiralTightness - angle * _Divisions);
                 float spiral = exp(-pow((spiralPhase - 0.5) * 2.0, 2.0) / (_LineWidth * _LineWidth));
 
-                // combine: rings + spokes = grid, mix with spiral for golden ratio feel
                 float grid = max(ring, spoke);
                 float finalGlow = lerp(grid, max(grid, spiral), _GoldenSpiral);
 
                 float radialFade = smoothstep(0.0, 0.05, r) * smoothstep(1.6, 0.2, r);
                 finalGlow *= radialFade;
 
-                // color: rings by radius, spokes by angle, combined
-                float colorR = logR * 0.3 + iTime * _ColorSpeed;
-                float colorA = angle / TWO_PI + iTime * _ColorSpeed * 0.7;
-                float3 col = rainbow(colorR) * ring + rainbow(colorA) * spoke * 0.8 + rainbow(colorR + colorA) * spiral * 0.6;
+                // color shifts faster with energy
+                float dynamicColorSpeed = _ColorSpeed * (1.0 + _AudioEnergy * 2.0);
+                float colorR = logR * 0.3 + iTime * dynamicColorSpeed;
+                float colorA = angle / TWO_PI + iTime * dynamicColorSpeed * 0.7;
+                float3 col = rainbow(colorR) * ring
+                           + rainbow(colorA) * spoke * 0.8
+                           + rainbow(colorR + colorA) * spiral * 0.6;
                 col /= max(ring + spoke * 0.8 + spiral * 0.6, 0.001);
 
                 return float4(col * finalGlow, finalGlow);
@@ -112,9 +123,12 @@ Shader "FidgetFlow/FibonacciTunnel"
 
                 float phi = 1.6180339887;
                 float logPhi = log(phi);
-                float phase = frac(iTime * _ZoomSpeed / logPhi);
-                int layers = (int)_Layers;
 
+                // bass drives zoom speed — beat drops make it surge
+                float dynamicZoom = _ZoomSpeed * (1.0 + _AudioBass * 2.5);
+                float phase = frac(iTime * dynamicZoom / logPhi);
+
+                int layers = (int)_Layers;
                 float3 totalColor = float3(0,0,0);
 
                 for (int i = 0; i < layers; i++)
@@ -126,15 +140,21 @@ Shader "FidgetFlow/FibonacciTunnel"
                     float w = sin(layerPhase * PI);
                     w = w * w;
 
+                    // mid brightens each layer
+                    w *= (1.0 + _AudioMid * 0.8);
+
                     float4 layer = fibLayer(uv, zoom, iTime);
                     totalColor += layer.rgb * w;
                 }
 
-                totalColor *= _Brightness;
+                // energy drives overall brightness — loud = brighter
+                float dynamicBrightness = _Brightness * (1.0 + _AudioEnergy * 1.5);
+                totalColor *= dynamicBrightness;
 
-                // glowing center core
                 float r = length(uv);
-                totalColor += rainbow(iTime * _ColorSpeed * 0.5) * exp(-r * 10.0) * 0.5;
+                // bass pulses the center core glow
+                float coreGlow = 0.3 + _AudioBass * 1.5;
+                totalColor += rainbow(iTime * _ColorSpeed) * exp(-r * 8.0) * coreGlow;
 
                 return half4(saturate(totalColor), 1);
             }

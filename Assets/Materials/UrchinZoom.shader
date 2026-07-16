@@ -3,11 +3,15 @@ Shader "FidgetFlow/UrchinZoom"
     Properties
     {
         _Speed ("Zoom Speed", Float) = 0.5
-        _RotationSpeed ("Rotation Speed", Float) = 1.0
+        _RotationSpeed ("Rotation Speed", Float) = 0.5
         _ColorShift ("Color Shift", Float) = 0.0
         _Brightness ("Brightness", Float) = 1.0
-        _StreakAmount ("Streak Amount", Float) = 3.0
+        _StreakAmount ("Streak Amount", Float) = 2.0
         _TwistAmount ("Twist Amount", Float) = 1.0
+        _AudioBass ("Audio Bass", Float) = 0
+        _AudioMid ("Audio Mid", Float) = 0
+        _AudioHigh ("Audio High", Float) = 0
+        _AudioEnergy ("Audio Energy", Float) = 0
     }
 
     SubShader
@@ -41,6 +45,10 @@ Shader "FidgetFlow/UrchinZoom"
             float _Brightness;
             float _StreakAmount;
             float _TwistAmount;
+            float _AudioBass;
+            float _AudioMid;
+            float _AudioHigh;
+            float _AudioEnergy;
 
             Varyings vert(Attributes IN)
             {
@@ -52,10 +60,9 @@ Shader "FidgetFlow/UrchinZoom"
 
             float3 H(float a)
             {
-                return cos(float3(PI, HALF_PI, 0) + (a + _ColorShift) * TWO_PI) * 0.5 + 0.5;
+                return cos(float3(PI, HALF_PI, 0) + (a + _ColorShift + _AudioMid * 0.3) * TWO_PI) * 0.5 + 0.5;
             }
 
-            // bug-style rotation matrix from angle
             float2x2 rot2(float a)
             {
                 float s = sin(a), c = cos(a);
@@ -66,9 +73,10 @@ Shader "FidgetFlow/UrchinZoom"
             {
                 float l = 5.0, f = 1e10, y, z;
 
-                // bug twist: rotate UV space based on depth and time
+                // high frequencies speed up rotation twist
+                float dynamicRotation = _RotationSpeed * (1.0 + _AudioHigh * 2.0);
                 float twist = depth * 0.001 * _TwistAmount;
-                u.xy = mul(rot2(twist + T * _RotationSpeed), u.xy);
+                u.xy = mul(rot2(twist + T * dynamicRotation), u.xy);
 
                 u.xy = float2(atan2(u.x, u.y), length(u.xy));
                 u.x += T * v * PI * 0.7;
@@ -85,9 +93,9 @@ Shader "FidgetFlow/UrchinZoom"
                     p.y -= y;
                     z = cos(y * T * TWO_PI) * 0.5 + 0.5;
 
-                    // streak: as zoom depth increases, tubes elongate on x axis
-                    float streak = 1.0 + depth * 0.002 * _StreakAmount;
-                    float2 tubeP = float2(p.x / streak, p.y);
+                    // mid increases streak amount
+                    float dynamicStreak = 1.0 + depth * 0.002 * (_StreakAmount + _AudioMid * 3.0);
+                    float2 tubeP = float2(p.x / dynamicStreak, p.y);
                     float tubeDist = length(tubeP);
 
                     f = min(f, max(tubeDist, -p.z - z * 9.0) - 0.1 - z * 0.2 - p.z / 100.0);
@@ -102,8 +110,9 @@ Shader "FidgetFlow/UrchinZoom"
 
                 float3 ray = normalize(float3(uv, 1.0));
 
-                // infinite zoom: camera flies forward continuously
-                float3 cam = float3(0, 0, -130.0 + sin(iTime * _Speed) * 80.0);
+                // bass drives zoom depth — beat drops surge forward
+                float dynamicSpeed = _Speed * (1.0 + _AudioBass * 3.0);
+                float3 cam = float3(0, 0, -130.0 + sin(iTime * dynamicSpeed) * 80.0);
 
                 float3 c = float3(0, 0, 0);
                 float3 p = float3(0, 0, 0);
@@ -126,7 +135,6 @@ Shader "FidgetFlow/UrchinZoom"
                     float2 wa = p.z / 8.0 + T * 300.0 + float2(0, HALF_PI) + z * 0.5;
                     p.xy -= cos(wa) * 0.2;
 
-                    // pass current depth into map for streak/twist effects
                     s = urchin_map(p, v, T, d);
 
                     r = length(p.xy);
@@ -163,7 +171,9 @@ Shader "FidgetFlow/UrchinZoom"
                 float T = iTime / 300.0;
 
                 float3 col = urchin_color(uv, T, iTime);
-                col *= _Brightness;
+
+                // energy drives brightness
+                col *= _Brightness * (1.0 + _AudioEnergy * 1.5);
 
                 return half4(saturate(col), 1);
             }
