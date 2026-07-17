@@ -290,6 +290,11 @@ MonoBehaviour:
   midSensitivity: 1.5
   highSensitivity: 1
   smoothing: 5
+  bpmMin: 60
+  bpmMax: 180
+  blobCountMin: 3
+  blobCountMax: 12
+  beatThreshold: 0.3
   _bass: 0
   _mid: 0
   _high: 0

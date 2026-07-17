@@ -7,6 +7,7 @@
     <list default="true" id="bff25256-b9c9-4daf-8040-961893ee88e9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FidgetFlow/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FidgetFlow/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Materials/LavaLamp.shader" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/LavaLamp.shader" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AudioReactivityManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/AudioReactivityManager.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,7 +89,7 @@
       <workItem from="1782402565715" duration="4000" />
       <workItem from="1782402633607" duration="4000" />
       <workItem from="1783617427864" duration="6279000" />
-      <workItem from="1783779205618" duration="15605000" />
+      <workItem from="1783779205618" duration="17319000" />
     </task>
     <servers />
   </component>

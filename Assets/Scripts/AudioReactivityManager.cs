@@ -191,9 +191,6 @@ public class AudioReactivityManager : MonoBehaviour
 
     void PushToShaders()
     {
-        float bpmNormalized = Mathf.InverseLerp(bpmMin, bpmMax, _detectedBPM);
-        float blobCount = Mathf.Lerp(blobCountMin, blobCountMax, bpmNormalized);
-
         foreach (Material mat in reactableMaterials)
         {
             if (mat == null) continue;
@@ -201,7 +198,6 @@ public class AudioReactivityManager : MonoBehaviour
             mat.SetFloat("_AudioMid", _mid);
             mat.SetFloat("_AudioHigh", _high);
             mat.SetFloat("_AudioEnergy", _energy);
-            mat.SetFloat("_BlobCount", blobCount);
         }
     }
 }

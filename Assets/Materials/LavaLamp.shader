@@ -2,7 +2,7 @@ Shader "FidgetFlow/LavaLamp"
 {
     Properties
     {
-        _BlobCount ("Blob Count", Range(3, 12)) = 6
+        _BlobCount ("Blob Count", Range(5, 15)) = 8
         _BlobSize ("Blob Size", Range(0.2, 1.5)) = 0.7
         _FlowSpeed ("Flow Speed", Float) = 0.4
         _BlendSmoothness ("Blend Smoothness", Float) = 0.6
@@ -117,9 +117,9 @@ Shader "FidgetFlow/LavaLamp"
                 float t = _Time.y;
 
                 // bass swells blob size aggressively on beat
-                float dynamicBlobSize = _BlobSize * (1.0 + _AudioBass * 2.5);
+                float dynamicBlobSize = _BlobSize * (1.0 + _AudioBass * 3.0);
                 // mid speeds up flow
-                float dynamicFlow = _FlowSpeed * (1.0 + _AudioMid * 2.0);
+                float dynamicFlow = _FlowSpeed * (1.0 + _AudioMid * 0.5);
                 // high tightens blend smoothness
                 float dynamicBlend = _BlendSmoothness * (1.0 - _AudioHigh * 0.4);
                 dynamicBlend = max(dynamicBlend, 0.1);
@@ -131,11 +131,11 @@ Shader "FidgetFlow/LavaLamp"
                 float3 p = camPos;
                 bool hit = false;
 
-                for (int i = 0; i < 80; i++)
+                for (int i = 0; i < 128; i++)
                 {
                     p = camPos + rayDir * depth;
                     float dist = scene(p, t, dynamicBlobSize, dynamicFlow, dynamicBlend);
-                    depth += dist;
+                    depth += dist * 0.5;
                     if (dist < 0.001)
                     {
                         hit = true;

@@ -86,14 +86,14 @@ Material:
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _AspectRatio: 1.4
-    - _AudioBass: 0.03175899
-    - _AudioEnergy: 0.028022407
-    - _AudioHigh: 0.017188953
-    - _AudioMid: 0.029017068
+    - _AudioBass: 0.013293457
+    - _AudioEnergy: 0.0132453935
+    - _AudioHigh: 0.011843117
+    - _AudioMid: 0.014100138
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BlendSmoothness: 0.8
-    - _BlobCount: 8.453793
+    - _BlobCount: 15
     - _BlobSize: 0.7
     - _Brightness: 2
     - _BumpScale: 1
@@ -109,7 +109,7 @@ Material:
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
     - _FOV: 1.2
-    - _FlowSpeed: 0.4
+    - _FlowSpeed: 0.15
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
