@@ -6,13 +6,11 @@ Shader "FidgetFlow/LavaLamp"
         _BlobSize ("Blob Size", Range(0.2, 1.5)) = 0.7
         _FlowSpeed ("Flow Speed", Float) = 0.4
         _BlendSmoothness ("Blend Smoothness", Float) = 0.6
-        _ColorA ("Color A", Color) = (1.0, 0.1, 0.4, 1)
-        _ColorB ("Color B", Color) = (0.1, 0.4, 1.0, 1)
-        _ColorC ("Color C", Color) = (0.8, 0.1, 1.0, 1)
         _Brightness ("Brightness", Float) = 1.2
         _CameraZ ("Camera Distance", Float) = 6.0
         _AspectRatio ("Aspect Ratio", Float) = 0.462
         _FOV ("Field of View", Float) = 1.2
+        _ColorShuffleSpeed ("Color Shuffle Speed", Float) = 0.3
         _AudioBass ("Audio Bass", Float) = 0
         _AudioMid ("Audio Mid", Float) = 0
         _AudioHigh ("Audio High", Float) = 0
@@ -48,13 +46,11 @@ Shader "FidgetFlow/LavaLamp"
             float _BlobSize;
             float _FlowSpeed;
             float _BlendSmoothness;
-            float4 _ColorA;
-            float4 _ColorB;
-            float4 _ColorC;
             float _Brightness;
             float _CameraZ;
             float _AspectRatio;
             float _FOV;
+            float _ColorShuffleSpeed;
             float _AudioBass;
             float _AudioMid;
             float _AudioHigh;
@@ -120,11 +116,11 @@ Shader "FidgetFlow/LavaLamp"
 
                 float t = _Time.y;
 
-                // bass swells blob size on beat
-                float dynamicBlobSize = _BlobSize * (1.0 + _AudioBass * 0.8);
+                // bass swells blob size aggressively on beat
+                float dynamicBlobSize = _BlobSize * (1.0 + _AudioBass * 2.5);
                 // mid speeds up flow
                 float dynamicFlow = _FlowSpeed * (1.0 + _AudioMid * 2.0);
-                // high adds jitter by tightening blend
+                // high tightens blend smoothness
                 float dynamicBlend = _BlendSmoothness * (1.0 - _AudioHigh * 0.4);
                 dynamicBlend = max(dynamicBlend, 0.1);
 
@@ -163,14 +159,13 @@ Shader "FidgetFlow/LavaLamp"
                 float spec = pow(saturate(dot(normal, halfVec)), 48.0);
                 float fresnel = pow(1.0 - saturate(dot(normal, viewDir)), 3.0);
 
-                float t1 = sin(p.x * 0.5 + t * 0.3) * 0.5 + 0.5;
-                float t2 = cos(p.y * 0.4 + t * 0.2) * 0.5 + 0.5;
-                float3 col = lerp(_ColorA.rgb, _ColorB.rgb, t1);
-                col = lerp(col, _ColorC.rgb, t2 * 0.6);
+                // full rainbow spectrum — color shuffle speed driven by audio
+                float colorShuffleSpeed = _ColorShuffleSpeed + _AudioEnergy * 2.0 + _AudioMid * 1.5;
+                float rainbowT = t * colorShuffleSpeed + p.x * 0.15 + p.y * 0.1;
+                float3 col = 0.5 + 0.5 * cos(TWO_PI * (rainbowT + float3(0.0, 0.333, 0.667)));
                 col += fresnel * 0.4;
 
                 float3 finalColor = col * (diff * 0.8 + 0.25) + spec * 0.6;
-                // energy drives brightness
                 finalColor *= _Brightness * (1.0 + _AudioEnergy * 1.5);
                 finalColor *= exp(-depth * 0.04);
 

@@ -10,8 +10,8 @@ public class AudioReactivityManager : MonoBehaviour
     public Material[] reactableMaterials;
 
     [Header("Audio Sources")]
-    public AudioSource bundledAudioSource;    // for your bundled tracks
-    public AudioSource localAudioSource;      // for device library tracks
+    public AudioSource bundledAudioSource;
+    public AudioSource localAudioSource;
 
     [Header("Sensitivity")]
     public float bassSensitivity = 2.0f;
@@ -19,16 +19,23 @@ public class AudioReactivityManager : MonoBehaviour
     public float highSensitivity = 1.0f;
     public float smoothing = 5.0f;
 
-    // public so UI can read current mode
+    [Header("Beat Detection")]
+    public float bpmMin = 60f;
+    public float bpmMax = 180f;
+    public int blobCountMin = 3;
+    public int blobCountMax = 12;
+    public float beatThreshold = 0.3f;
+
     public AudioMode CurrentMode { get; private set; } = AudioMode.Bundled;
 
     public float _bass, _mid, _high, _energy;
 
-    // mic
+    float _detectedBPM = 120f;
+    float _lastBeatTime = 0f;
+    bool _wasAboveThreshold = false;
+
     AudioClip _micClip;
     string _micDevice;
-
-    // spectrum data
     float[] _spectrumData = new float[1024];
 
     void Start()
@@ -36,7 +43,6 @@ public class AudioReactivityManager : MonoBehaviour
         StartCoroutine(MonitorAudioRoute());
     }
 
-    // called by UI when user picks a bundled track
     public void PlayBundledTrack(AudioClip clip)
     {
         StopMic();
@@ -45,7 +51,6 @@ public class AudioReactivityManager : MonoBehaviour
         CurrentMode = AudioMode.Bundled;
     }
 
-    // called by UI when user picks a local device track
     public void PlayLocalTrack(AudioClip clip)
     {
         StopMic();
@@ -54,7 +59,6 @@ public class AudioReactivityManager : MonoBehaviour
         CurrentMode = AudioMode.LocalDevice;
     }
 
-    // called when no music is playing through Unity — fall back to mic
     public void StartMicMode()
     {
         if (CurrentMode == AudioMode.Mic) return;
@@ -86,7 +90,6 @@ public class AudioReactivityManager : MonoBehaviour
         }
     }
 
-    // auto switch to mic if Unity audio stops playing
     IEnumerator MonitorAudioRoute()
     {
         while (true)
@@ -124,8 +127,6 @@ public class AudioReactivityManager : MonoBehaviour
     void AnalyzeAudioSource(AudioSource source)
     {
         if (source == null || !source.isPlaying) return;
-
-        // get spectrum data directly from AudioSource — perfect accuracy
         source.GetSpectrumData(_spectrumData, 0, FFTWindow.BlackmanHarris);
         ProcessSpectrum();
     }
@@ -148,9 +149,6 @@ public class AudioReactivityManager : MonoBehaviour
 
     void ProcessSpectrum()
     {
-        // bass: bins 0-10 (~0-430hz) — kick, bass guitar, low synth
-        // mid: bins 10-100 (~430hz-4.3khz) — snare, vocals, melody
-        // high: bins 100-512 (~4.3khz+) — hi-hats, cymbals, air
         float rawBass = 0, rawMid = 0, rawHigh = 0;
 
         for (int i = 0; i < 10; i++) rawBass += _spectrumData[i];
@@ -166,10 +164,36 @@ public class AudioReactivityManager : MonoBehaviour
         _mid = Mathf.Lerp(_mid, Mathf.Clamp01(rawMid * midSensitivity), dt);
         _high = Mathf.Lerp(_high, Mathf.Clamp01(rawHigh * highSensitivity), dt);
         _energy = (_bass + _mid * 0.6f + _high * 0.4f) / 2f;
+
+        DetectBeat();
+    }
+
+    void DetectBeat()
+    {
+        bool aboveThreshold = _bass > beatThreshold;
+
+        if (aboveThreshold && !_wasAboveThreshold)
+        {
+            float now = Time.time;
+            float interval = now - _lastBeatTime;
+
+            if (interval > 0.25f && interval < 1.5f)
+            {
+                float measuredBPM = 60f / interval;
+                _detectedBPM = Mathf.Lerp(_detectedBPM, measuredBPM, 0.2f);
+            }
+
+            _lastBeatTime = now;
+        }
+
+        _wasAboveThreshold = aboveThreshold;
     }
 
     void PushToShaders()
     {
+        float bpmNormalized = Mathf.InverseLerp(bpmMin, bpmMax, _detectedBPM);
+        float blobCount = Mathf.Lerp(blobCountMin, blobCountMax, bpmNormalized);
+
         foreach (Material mat in reactableMaterials)
         {
             if (mat == null) continue;
@@ -177,6 +201,7 @@ public class AudioReactivityManager : MonoBehaviour
             mat.SetFloat("_AudioMid", _mid);
             mat.SetFloat("_AudioHigh", _high);
             mat.SetFloat("_AudioEnergy", _energy);
+            mat.SetFloat("_BlobCount", blobCount);
         }
     }
 }
