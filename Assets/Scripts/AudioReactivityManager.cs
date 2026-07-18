@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Networking;
 using System.Collections;
 
 public class AudioReactivityManager : MonoBehaviour
@@ -22,15 +21,18 @@ public class AudioReactivityManager : MonoBehaviour
     [Header("Beat Detection")]
     public float bpmMin = 60f;
     public float bpmMax = 180f;
-    public int blobCountMin = 3;
-    public int blobCountMax = 12;
+    public float blobSizeMin = 0.3f;
+    public float blobSizeMax = 1.2f;
     public float beatThreshold = 0.3f;
+    public float bpmSmoothing = 0.5f;
 
     public AudioMode CurrentMode { get; private set; } = AudioMode.Bundled;
 
     public float _bass, _mid, _high, _energy;
 
     float _detectedBPM = 120f;
+    float _smoothedBPM = 120f;
+    float _smoothedBlobSize = 0.7f;
     float _lastBeatTime = 0f;
     bool _wasAboveThreshold = false;
 
@@ -159,10 +161,17 @@ public class AudioReactivityManager : MonoBehaviour
         rawMid /= 90f;
         rawHigh /= 412f;
 
-        float dt = Time.deltaTime * smoothing;
-        _bass = Mathf.Lerp(_bass, Mathf.Clamp01(rawBass * bassSensitivity), dt);
-        _mid = Mathf.Lerp(_mid, Mathf.Clamp01(rawMid * midSensitivity), dt);
-        _high = Mathf.Lerp(_high, Mathf.Clamp01(rawHigh * highSensitivity), dt);
+        float targetBass = Mathf.Clamp01(rawBass * bassSensitivity);
+        float targetMid = Mathf.Clamp01(rawMid * midSensitivity);
+        float targetHigh = Mathf.Clamp01(rawHigh * highSensitivity);
+
+        // attack fast, decay slow — snappy response going up, smooth fade going down
+        float attackDt = Time.deltaTime * smoothing;
+        float decayDt = Time.deltaTime * (smoothing * 0.1f);
+
+        _bass = Mathf.Lerp(_bass, targetBass, targetBass > _bass ? attackDt : decayDt);
+        _mid = Mathf.Lerp(_mid, targetMid, targetMid > _mid ? attackDt : decayDt);
+        _high = Mathf.Lerp(_high, targetHigh, targetHigh > _high ? attackDt : decayDt);
         _energy = (_bass + _mid * 0.6f + _high * 0.4f) / 2f;
 
         DetectBeat();
@@ -170,7 +179,9 @@ public class AudioReactivityManager : MonoBehaviour
 
     void DetectBeat()
     {
-        bool aboveThreshold = _bass > beatThreshold;
+        // use energy instead of just bass so classical/ambient still triggers
+        float combinedSignal = (_bass * 0.4f + _mid * 0.4f + _energy * 0.2f);
+        bool aboveThreshold = combinedSignal > beatThreshold;
 
         if (aboveThreshold && !_wasAboveThreshold)
         {
@@ -180,13 +191,24 @@ public class AudioReactivityManager : MonoBehaviour
             if (interval > 0.25f && interval < 1.5f)
             {
                 float measuredBPM = 60f / interval;
-                _detectedBPM = Mathf.Lerp(_detectedBPM, measuredBPM, 0.2f);
+                // raw BPM snaps toward measurement
+                _detectedBPM = Mathf.Lerp(_detectedBPM, measuredBPM, 0.25f);
             }
 
             _lastBeatTime = now;
         }
 
         _wasAboveThreshold = aboveThreshold;
+
+        // smooth BPM separately so blob size changes are gradual not jumpy
+        _smoothedBPM = Mathf.Lerp(_smoothedBPM, _detectedBPM, Time.deltaTime * bpmSmoothing);
+
+        // map smoothed BPM to blob size
+        float bpmNormalized = Mathf.InverseLerp(bpmMin, bpmMax, _smoothedBPM);
+        float targetBlobSize = Mathf.Lerp(blobSizeMin, blobSizeMax, bpmNormalized);
+
+        // smooth blob size change independently — this is what makes it fluid
+        _smoothedBlobSize = Mathf.Lerp(_smoothedBlobSize, targetBlobSize, Time.deltaTime * 1.5f);
     }
 
     void PushToShaders()
@@ -198,6 +220,7 @@ public class AudioReactivityManager : MonoBehaviour
             mat.SetFloat("_AudioMid", _mid);
             mat.SetFloat("_AudioHigh", _high);
             mat.SetFloat("_AudioEnergy", _energy);
+            mat.SetFloat("_BlobSize", _smoothedBlobSize);
         }
     }
 }

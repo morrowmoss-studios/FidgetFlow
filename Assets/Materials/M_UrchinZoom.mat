@@ -98,10 +98,10 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 0
     - _AlphaToMask: 0
-    - _AudioBass: 0.013293457
-    - _AudioEnergy: 0.0132453935
-    - _AudioHigh: 0.011843117
-    - _AudioMid: 0.014100138
+    - _AudioBass: 0.044757888
+    - _AudioEnergy: 0.034509778
+    - _AudioHigh: 0.016529046
+    - _AudioMid: 0.02941675
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _Brightness: 1

@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/kalidescope.unity
+    guid: 109fc4689b7d84278a4aa4e3042dfe73
   m_configObjects: {}

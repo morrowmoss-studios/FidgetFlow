@@ -52,10 +52,11 @@ public class BinauralBeatGenerator : MonoBehaviour
     void Start()
     {
         _audioSource = GetComponent<AudioSource>();
-        _audioSource.spatialBlend = 0f; // 2D audio, not 3D positioned
+        _audioSource.spatialBlend = 0f;
         _sampleRate = AudioSettings.outputSampleRate;
         ApplyPreset();
-        StartPlaying();
+        // don't auto start — user triggers this from UI
+        _playing = false;
     }
 
     public void ApplyPreset()
