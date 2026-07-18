@@ -6,6 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/kalidescope.unity
+    path: Assets/Scenes/LogoSplash.unity
+    guid: 48d7dbf21c7ee450498184631212888f
+  - enabled: 1
+    path: Assets/Scenes/Home.unity
+    guid: 15bdb69d311d3423690f2de5fa7a3c93
+  - enabled: 1
+    path: Assets/Scenes/Modes.unity
     guid: 109fc4689b7d84278a4aa4e3042dfe73
   m_configObjects: {}
