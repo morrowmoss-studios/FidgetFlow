@@ -103,39 +103,49 @@ Material:
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _AspectRatio: 1
-    - _AudioBass: 0.044757888
-    - _AudioEnergy: 0.034509778
-    - _AudioHigh: 0.016529046
-    - _AudioMid: 0.02941675
+    - _AudioBass: 0.06885267
+    - _AudioEnergy: 0.05322059
+    - _AudioHigh: 0.029360794
+    - _AudioMid: 0.04307365
     - _AutoZoomSpeed: 0.05
     - _BandCount: 6
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BlendSmoothness: 0.4
     - _BlobCount: 5
-    - _BlobSize: 0.7499993
-    - _Brightness: 2
+    - _BlobSize: 0.7499998
+    - _Brightness: 1.2
     - _BumpScale: 1
     - _CameraDistance: 2
     - _CameraZ: 6
+    - _CenterDarkness: 0.72
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
+    - _CloudStrength: 0.75
     - _ColorShift: 0.8
     - _ColorShuffleSpeed: 0.3
     - _ColorSpeed: 0.1
     - _ColorSpread: 4
-    - _Contrast: 2
-    - _CoreGlowFalloff: 12
-    - _CoreGlowIntensity: 0.6
+    - _Contrast: 1.45
+    - _CoreGlowFalloff: 10
+    - _CoreGlowIntensity: 0.15
     - _Cull: 2
     - _Cutoff: 0.5
+    - _Darkness: 0.72
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
+    - _DetailStrength: 0.65
+    - _DriftAmount: 1
     - _DstBlend: 0
     - _DstBlendAlpha: 0
+    - _EdgeFalloff: 0.65
     - _EnvironmentReflections: 1
     - _FOV: 1.2
+    - _FilamentSharpness: 4.2
+    - _FilamentStrength: 1.65
+    - _FineScale: 6.5
     - _FlowSpeed: 0.15
+    - _FlowStrength: 1.35
     - _FoldCount: 8
     - _FoldIterations: 8
     - _GapWidth: 0.15
@@ -148,10 +158,12 @@ Material:
     - _JuliaAnimSpeed: 0.2
     - _JuliaX: -0.7
     - _JuliaY: 0.27
+    - _LargeScale: 0.85
     - _LineFrequency: 12
     - _LineSharpness: 6
     - _LineWidth: 0.05
     - _MaxSteps: 80
+    - _MediumScale: 2.2
     - _Metallic: 0
     - _Mode: 0
     - _NoiseScale: 2
@@ -162,11 +174,12 @@ Material:
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _RadialBias: 2.5
+    - _RadialStretch: 1.15
     - _ReceiveShadows: 1
-    - _RotationSpeed: 0.1
-    - _Saturation: 1
+    - _RotationSpeed: 0.01
+    - _Saturation: 1.25
     - _Scale: 2
-    - _Segments: 12.98
+    - _Segments: 5
     - _Sharpness: 1.2
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
@@ -180,7 +193,9 @@ Material:
     - _TargetY: 0.1889
     - _TendrilSharpness: 3
     - _Threshold: 0.2
-    - _WarpStrength: 0.3
+    - _Turbulence: 1.25
+    - _Vignette: 0.42
+    - _WarpStrength: 1.65
     - _WaveCount: 7
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
@@ -189,6 +204,7 @@ Material:
     - _ZoomDepth: 10
     - _ZoomSpeed: 0.0475
     m_Colors:
+    - _BackgroundColor: {r: 0.002, g: 0.008, b: 0.018, a: 1}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _ColorA: {r: 0.61441445, g: 0.44045925, b: 0.9245283, a: 1}

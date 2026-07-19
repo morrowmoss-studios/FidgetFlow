@@ -1217,7 +1217,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1672373123}
         m_TargetAssemblyTypeName: WarningMenuController, Assembly-CSharp
-        m_MethodName: CancelInvoke
+        m_MethodName: Cancel
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
