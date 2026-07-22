@@ -3,7 +3,12 @@ using System.Collections;
 
 public class AudioReactivityManager : MonoBehaviour
 {
-    public enum AudioMode { Bundled, LocalDevice, Mic }
+    public enum AudioMode
+    {
+        Bundled,
+        LocalDevice,
+        Mic
+    }
 
     [Header("Materials")]
     public Material[] reactableMaterials;
@@ -13,10 +18,19 @@ public class AudioReactivityManager : MonoBehaviour
     public AudioSource localAudioSource;
 
     [Header("Sensitivity")]
-    public float bassSensitivity = 2.0f;
-    public float midSensitivity = 1.5f;
-    public float highSensitivity = 1.0f;
-    public float smoothing = 5.0f;
+    public float bassSensitivity = 2.8f;
+    public float midSensitivity = 2.2f;
+    public float highSensitivity = 1.8f;
+
+    [Header("Response Speed")]
+    [Tooltip("How quickly values jump upward when sound gets louder.")]
+    public float attackSpeed = 22.0f;
+
+    [Tooltip("How quickly values fall after the sound gets quieter.")]
+    public float decaySpeed = 9.0f;
+
+    [Tooltip("Adds extra punch when a band suddenly increases.")]
+    public float transientBoost = 0.35f;
 
     [Header("Beat Detection")]
     public float bpmMin = 60f;
@@ -28,96 +42,155 @@ public class AudioReactivityManager : MonoBehaviour
 
     public AudioMode CurrentMode { get; private set; } = AudioMode.Bundled;
 
-    public float _bass, _mid, _high, _energy;
+    public float _bass;
+    public float _mid;
+    public float _high;
+    public float _energy;
 
-    float _detectedBPM = 120f;
-    float _smoothedBPM = 120f;
-    float _smoothedBlobSize = 0.7f;
-    float _lastBeatTime = 0f;
-    bool _wasAboveThreshold = false;
+    private float _previousTargetBass;
+    private float _previousTargetMid;
+    private float _previousTargetHigh;
 
-    AudioClip _micClip;
-    string _micDevice;
-    float[] _spectrumData = new float[1024];
+    private float _detectedBPM = 120f;
+    private float _smoothedBPM = 120f;
+    private float _smoothedBlobSize = 0.7f;
+    private float _lastBeatTime;
+    private bool _wasAboveThreshold;
 
-    void Start()
+    private AudioClip _micClip;
+    private string _micDevice;
+
+    private readonly float[] _spectrumData = new float[1024];
+    private readonly float[] _micSamples = new float[1024];
+
+    private void Start()
     {
         StartCoroutine(MonitorAudioRoute());
     }
 
     public void PlayBundledTrack(AudioClip clip)
     {
+        if (clip == null || bundledAudioSource == null)
+        {
+            return;
+        }
+
         StopMic();
+
         bundledAudioSource.clip = clip;
         bundledAudioSource.Play();
+
         CurrentMode = AudioMode.Bundled;
     }
 
     public void PlayLocalTrack(AudioClip clip)
     {
+        if (clip == null || localAudioSource == null)
+        {
+            return;
+        }
+
         StopMic();
+
         localAudioSource.clip = clip;
         localAudioSource.Play();
+
         CurrentMode = AudioMode.LocalDevice;
     }
 
     public void StartMicMode()
     {
-        if (CurrentMode == AudioMode.Mic) return;
+        if (CurrentMode == AudioMode.Mic)
+        {
+            return;
+        }
+
         CurrentMode = AudioMode.Mic;
+
         StopAllMusic();
         StartMic();
     }
 
     public void StopAllMusic()
     {
-        if (bundledAudioSource != null) bundledAudioSource.Stop();
-        if (localAudioSource != null) localAudioSource.Stop();
-    }
-
-    void StartMic()
-    {
-        if (Microphone.devices.Length == 0) return;
-        _micDevice = Microphone.devices[0];
-        _micClip = Microphone.Start(_micDevice, true, 1, 44100);
-    }
-
-    void StopMic()
-    {
-        if (_micDevice != null)
+        if (bundledAudioSource != null)
         {
-            Microphone.End(_micDevice);
-            _micDevice = null;
-            _micClip = null;
+            bundledAudioSource.Stop();
+        }
+
+        if (localAudioSource != null)
+        {
+            localAudioSource.Stop();
         }
     }
 
-    IEnumerator MonitorAudioRoute()
+    private void StartMic()
+    {
+        if (Microphone.devices.Length == 0)
+        {
+            Debug.LogWarning("No microphone device found.");
+            return;
+        }
+
+        _micDevice = Microphone.devices[0];
+        _micClip = Microphone.Start(
+            _micDevice,
+            true,
+            1,
+            AudioSettings.outputSampleRate
+        );
+    }
+
+    private void StopMic()
+    {
+        if (string.IsNullOrEmpty(_micDevice))
+        {
+            return;
+        }
+
+        Microphone.End(_micDevice);
+
+        _micDevice = null;
+        _micClip = null;
+    }
+
+    private IEnumerator MonitorAudioRoute()
     {
         while (true)
         {
             yield return new WaitForSeconds(1.0f);
 
-            bool bundledPlaying = bundledAudioSource != null && bundledAudioSource.isPlaying;
-            bool localPlaying = localAudioSource != null && localAudioSource.isPlaying;
+            bool bundledPlaying =
+                bundledAudioSource != null &&
+                bundledAudioSource.isPlaying;
 
-            if (!bundledPlaying && !localPlaying && CurrentMode != AudioMode.Mic)
+            bool localPlaying =
+                localAudioSource != null &&
+                localAudioSource.isPlaying;
+
+            if (
+                !bundledPlaying &&
+                !localPlaying &&
+                CurrentMode != AudioMode.Mic
+            )
             {
                 StartMicMode();
             }
         }
     }
 
-    void Update()
+    private void Update()
     {
         switch (CurrentMode)
         {
             case AudioMode.Bundled:
                 AnalyzeAudioSource(bundledAudioSource);
                 break;
+
             case AudioMode.LocalDevice:
                 AnalyzeAudioSource(localAudioSource);
                 break;
+
             case AudioMode.Mic:
                 AnalyzeMic();
                 break;
@@ -126,101 +199,385 @@ public class AudioReactivityManager : MonoBehaviour
         PushToShaders();
     }
 
-    void AnalyzeAudioSource(AudioSource source)
+    private void AnalyzeAudioSource(AudioSource source)
     {
-        if (source == null || !source.isPlaying) return;
-        source.GetSpectrumData(_spectrumData, 0, FFTWindow.BlackmanHarris);
-        ProcessSpectrum();
-    }
+        if (source == null || !source.isPlaying)
+        {
+            DecayTowardSilence();
+            return;
+        }
 
-    void AnalyzeMic()
-    {
-        if (_micClip == null) return;
-
-        int micPos = Microphone.GetPosition(_micDevice);
-        if (micPos < _spectrumData.Length) return;
-
-        float[] samples = new float[_spectrumData.Length];
-        _micClip.GetData(samples, micPos - _spectrumData.Length);
-
-        for (int i = 0; i < samples.Length; i++)
-            _spectrumData[i] = Mathf.Abs(samples[i]);
+        source.GetSpectrumData(
+            _spectrumData,
+            0,
+            FFTWindow.BlackmanHarris
+        );
 
         ProcessSpectrum();
     }
 
-    void ProcessSpectrum()
+    private void AnalyzeMic()
     {
-        float rawBass = 0, rawMid = 0, rawHigh = 0;
+        if (_micClip == null || string.IsNullOrEmpty(_micDevice))
+        {
+            DecayTowardSilence();
+            return;
+        }
 
-        for (int i = 0; i < 10; i++) rawBass += _spectrumData[i];
-        for (int i = 10; i < 100; i++) rawMid += _spectrumData[i];
-        for (int i = 100; i < 512; i++) rawHigh += _spectrumData[i];
+        int micPosition =
+            Microphone.GetPosition(_micDevice);
+
+        if (micPosition < _micSamples.Length)
+        {
+            return;
+        }
+
+        _micClip.GetData(
+            _micSamples,
+            micPosition - _micSamples.Length
+        );
+
+        for (int i = 0; i < _micSamples.Length; i++)
+        {
+            _spectrumData[i] =
+                Mathf.Abs(_micSamples[i]);
+        }
+
+        ProcessSpectrum();
+    }
+
+    private void ProcessSpectrum()
+    {
+        float rawBass = 0f;
+        float rawMid = 0f;
+        float rawHigh = 0f;
+
+        for (int i = 0; i < 10; i++)
+        {
+            rawBass += _spectrumData[i];
+        }
+
+        for (int i = 10; i < 100; i++)
+        {
+            rawMid += _spectrumData[i];
+        }
+
+        for (int i = 100; i < 512; i++)
+        {
+            rawHigh += _spectrumData[i];
+        }
 
         rawBass /= 10f;
         rawMid /= 90f;
         rawHigh /= 412f;
 
-        float targetBass = Mathf.Clamp01(rawBass * bassSensitivity);
-        float targetMid = Mathf.Clamp01(rawMid * midSensitivity);
-        float targetHigh = Mathf.Clamp01(rawHigh * highSensitivity);
+        float targetBass =
+            Mathf.Clamp01(
+                rawBass *
+                bassSensitivity
+            );
 
-        // attack fast, decay slow — snappy response going up, smooth fade going down
-        float attackDt = Time.deltaTime * smoothing;
-        float decayDt = Time.deltaTime * (smoothing * 0.1f);
+        float targetMid =
+            Mathf.Clamp01(
+                rawMid *
+                midSensitivity
+            );
 
-        _bass = Mathf.Lerp(_bass, targetBass, targetBass > _bass ? attackDt : decayDt);
-        _mid = Mathf.Lerp(_mid, targetMid, targetMid > _mid ? attackDt : decayDt);
-        _high = Mathf.Lerp(_high, targetHigh, targetHigh > _high ? attackDt : decayDt);
-        _energy = (_bass + _mid * 0.6f + _high * 0.4f) / 2f;
+        float targetHigh =
+            Mathf.Clamp01(
+                rawHigh *
+                highSensitivity
+            );
+
+        /*
+            Transient boost makes sudden increases punch harder.
+
+            This is what lets bass hits feel immediate instead of
+            waiting for the smoothed value to crawl upward.
+        */
+
+        float bassTransient =
+            Mathf.Max(
+                0f,
+                targetBass -
+                _previousTargetBass
+            );
+
+        float midTransient =
+            Mathf.Max(
+                0f,
+                targetMid -
+                _previousTargetMid
+            );
+
+        float highTransient =
+            Mathf.Max(
+                0f,
+                targetHigh -
+                _previousTargetHigh
+            );
+
+        targetBass =
+            Mathf.Clamp01(
+                targetBass +
+                bassTransient *
+                transientBoost
+            );
+
+        targetMid =
+            Mathf.Clamp01(
+                targetMid +
+                midTransient *
+                transientBoost
+            );
+
+        targetHigh =
+            Mathf.Clamp01(
+                targetHigh +
+                highTransient *
+                transientBoost
+            );
+
+        _previousTargetBass =
+            targetBass;
+
+        _previousTargetMid =
+            targetMid;
+
+        _previousTargetHigh =
+            targetHigh;
+
+        _bass =
+            SmoothBand(
+                _bass,
+                targetBass
+            );
+
+        _mid =
+            SmoothBand(
+                _mid,
+                targetMid
+            );
+
+        _high =
+            SmoothBand(
+                _high,
+                targetHigh
+            );
+
+        /*
+            Energy is intentionally responsive too.
+
+            The previous version derived energy from already heavily
+            smoothed channels, which added even more perceived delay.
+        */
+
+        float targetEnergy =
+            Mathf.Clamp01(
+                _bass * 0.50f +
+                _mid * 0.30f +
+                _high * 0.20f
+            );
+
+        _energy =
+            SmoothBand(
+                _energy,
+                targetEnergy
+            );
 
         DetectBeat();
     }
 
-    void DetectBeat()
+    private float SmoothBand(
+        float current,
+        float target
+    )
     {
-        // use energy instead of just bass so classical/ambient still triggers
-        float combinedSignal = (_bass * 0.4f + _mid * 0.4f + _energy * 0.2f);
-        bool aboveThreshold = combinedSignal > beatThreshold;
+        float speed =
+            target > current
+                ? attackSpeed
+                : decaySpeed;
 
-        if (aboveThreshold && !_wasAboveThreshold)
-        {
-            float now = Time.time;
-            float interval = now - _lastBeatTime;
+        /*
+            Exponential smoothing stays consistent across frame rates.
 
-            if (interval > 0.25f && interval < 1.5f)
-            {
-                float measuredBPM = 60f / interval;
-                // raw BPM snaps toward measurement
-                _detectedBPM = Mathf.Lerp(_detectedBPM, measuredBPM, 0.25f);
-            }
+            Mathf.Lerp with Time.deltaTime * speed can behave oddly
+            when frame rate drops, which matters while testing heavy
+            shaders.
+        */
 
-            _lastBeatTime = now;
-        }
+        float interpolation =
+            1f -
+            Mathf.Exp(
+                -speed *
+                Time.unscaledDeltaTime
+            );
 
-        _wasAboveThreshold = aboveThreshold;
-
-        // smooth BPM separately so blob size changes are gradual not jumpy
-        _smoothedBPM = Mathf.Lerp(_smoothedBPM, _detectedBPM, Time.deltaTime * bpmSmoothing);
-
-        // map smoothed BPM to blob size
-        float bpmNormalized = Mathf.InverseLerp(bpmMin, bpmMax, _smoothedBPM);
-        float targetBlobSize = Mathf.Lerp(blobSizeMin, blobSizeMax, bpmNormalized);
-
-        // smooth blob size change independently — this is what makes it fluid
-        _smoothedBlobSize = Mathf.Lerp(_smoothedBlobSize, targetBlobSize, Time.deltaTime * 1.5f);
+        return Mathf.Lerp(
+            current,
+            target,
+            interpolation
+        );
     }
 
-    void PushToShaders()
+    private void DecayTowardSilence()
     {
-        foreach (Material mat in reactableMaterials)
+        _bass =
+            SmoothBand(
+                _bass,
+                0f
+            );
+
+        _mid =
+            SmoothBand(
+                _mid,
+                0f
+            );
+
+        _high =
+            SmoothBand(
+                _high,
+                0f
+            );
+
+        _energy =
+            SmoothBand(
+                _energy,
+                0f
+            );
+    }
+
+    private void DetectBeat()
+    {
+        float combinedSignal =
+            _bass * 0.45f +
+            _mid * 0.35f +
+            _energy * 0.20f;
+
+        bool aboveThreshold =
+            combinedSignal >
+            beatThreshold;
+
+        if (
+            aboveThreshold &&
+            !_wasAboveThreshold
+        )
         {
-            if (mat == null) continue;
-            mat.SetFloat("_AudioBass", _bass);
-            mat.SetFloat("_AudioMid", _mid);
-            mat.SetFloat("_AudioHigh", _high);
-            mat.SetFloat("_AudioEnergy", _energy);
-            mat.SetFloat("_BlobSize", _smoothedBlobSize);
+            float now =
+                Time.time;
+
+            float interval =
+                now -
+                _lastBeatTime;
+
+            if (
+                interval > 0.25f &&
+                interval < 1.5f
+            )
+            {
+                float measuredBPM =
+                    60f /
+                    interval;
+
+                _detectedBPM =
+                    Mathf.Lerp(
+                        _detectedBPM,
+                        measuredBPM,
+                        0.25f
+                    );
+            }
+
+            _lastBeatTime =
+                now;
+        }
+
+        _wasAboveThreshold =
+            aboveThreshold;
+
+        float bpmInterpolation =
+            1f -
+            Mathf.Exp(
+                -bpmSmoothing *
+                Time.unscaledDeltaTime
+            );
+
+        _smoothedBPM =
+            Mathf.Lerp(
+                _smoothedBPM,
+                _detectedBPM,
+                bpmInterpolation
+            );
+
+        float bpmNormalized =
+            Mathf.InverseLerp(
+                bpmMin,
+                bpmMax,
+                _smoothedBPM
+            );
+
+        float targetBlobSize =
+            Mathf.Lerp(
+                blobSizeMin,
+                blobSizeMax,
+                bpmNormalized
+            );
+
+        float blobInterpolation =
+            1f -
+            Mathf.Exp(
+                -4f *
+                Time.unscaledDeltaTime
+            );
+
+        _smoothedBlobSize =
+            Mathf.Lerp(
+                _smoothedBlobSize,
+                targetBlobSize,
+                blobInterpolation
+            );
+    }
+
+    private void PushToShaders()
+    {
+        if (reactableMaterials == null)
+        {
+            return;
+        }
+
+        foreach (
+            Material material
+            in reactableMaterials
+        )
+        {
+            if (material == null)
+            {
+                continue;
+            }
+
+            material.SetFloat(
+                "_AudioBass",
+                _bass
+            );
+
+            material.SetFloat(
+                "_AudioMid",
+                _mid
+            );
+
+            material.SetFloat(
+                "_AudioHigh",
+                _high
+            );
+
+            material.SetFloat(
+                "_AudioEnergy",
+                _energy
+            );
+
+            material.SetFloat(
+                "_BlobSize",
+                _smoothedBlobSize
+            );
         }
     }
 }

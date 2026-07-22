@@ -290,9 +290,7 @@ MonoBehaviour:
   bassSensitivity: 2
   midSensitivity: 1.5
   highSensitivity: 1
-  attackSpeed: 22
-  decaySpeed: 9
-  transientBoost: 0.35
+  smoothing: 5
   bpmMin: 60
   bpmMax: 180
   blobSizeMin: 0.3
@@ -349,7 +347,7 @@ GameObject:
   - component: {fileID: 186897959}
   - component: {fileID: 186897958}
   m_Layer: 0
-  m_Name: Quad_Arcweave
+  m_Name: Quad_Bioluminescense
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

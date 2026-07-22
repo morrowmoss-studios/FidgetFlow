@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_Bioluminescence
+  m_Name: M_Starloom
   m_Shader: {fileID: 4800000, guid: 15be67ec929514e6f95569b1aa686717, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -98,16 +98,33 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 0
     - _AlphaToMask: 0
-    - _AudioBass: 0.06685596
-    - _AudioEnergy: 0.052885707
-    - _AudioHigh: 0.025914755
-    - _AudioMid: 0.04758259
+    - _Asymmetry: 0.75
+    - _AudioBass: 0.021412233
+    - _AudioEnergy: 0.020883951
+    - _AudioHigh: 0.016159795
+    - _AudioMid: 0.0136632295
+    - _AuraStrength: 0.45
+    - _BassBloom: 1.7
+    - _BassExpansion: 0.85
+    - _BassKick: 1.25
     - _BassResponse: 3
+    - _BassWidth: 0.8
+    - _BendStrength: 0.3
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
+    - _BloomCloudStrength: 0.72
+    - _BloomScale: 1.35
+    - _BloomSoftness: 0.18
+    - _BloomStrength: 0.9
+    - _BloomThreshold: 0.57
+    - _BranchDensity: 6
     - _BranchSharpness: 5
     - _BranchWidth: 0.045
     - _Brightness: 1.25
+    - _BubbleAmount: 1
+    - _BubbleBrightness: 0.8
+    - _BubbleSize: 0.85
+    - _BubbleSpeed: 0.75
     - _BumpScale: 1
     - _CellScale: 6
     - _ClearCoatMask: 0
@@ -116,60 +133,117 @@ Material:
     - _ColorSpeed: 0.035
     - _Contrast: 1.25
     - _CoreStrength: 1.55
+    - _CounterRotation: 0.26
     - _Cull: 2
+    - _CurlScale: 0.9
+    - _CurlStrength: 0.58
+    - _CurrentPulse: 1.1
+    - _CurrentStrength: 0.32
     - _Cutoff: 0.5
+    - _DarkPocketStrength: 0.7
+    - _DepthMotion: 0.48
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DriftSpeed: 0.1
     - _DriftStrength: 0.35
+    - _DriftX: 0.2
+    - _DriftY: 0.07
     - _DstBlend: 0
     - _DstBlendAlpha: 0
+    - _EnergyActivity: 1.1
     - _EnergyResponse: 2.5
     - _EnvironmentReflections: 1
+    - _FilamentLength: 1.45
     - _FilamentScale: 8
     - _FilamentSharpness: 6
     - _FilamentStrength: 1.25
+    - _FilamentThinness: 1.15
+    - _FilamentWidth: 0.035
+    - _FineCurrentStrength: 0.65
+    - _FineFilamentStrength: 0.44
     - _FineScale: 7.5
     - _FlickerAmount: 0.45
+    - _FlowSpeed: 1
+    - _FlowStrength: 0.72
+    - _GhostFadeSpeed: 0.28
+    - _GhostScale: 2.4
+    - _GhostSpeed: 0.16
+    - _GhostStrength: 0.42
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _GlowStrength: 1.45
     - _GlowWidth: 0.18
     - _HighResponse: 4
+    - _HighSparkStrength: 1.6
     - _HorizontalDrift: 0.22
     - _LargeScale: 0.75
+    - _LayerDepth: 1
+    - _LightShafts: 0.32
     - _MediumScale: 2.2
+    - _MembraneStrength: 1.15
     - _Metallic: 0
+    - _MidPulseSpeed: 3.2
+    - _MidPulseStrength: 1.35
     - _MidResponse: 3
     - _NodeSharpness: 6
     - _NodeSize: 0.08
     - _OcclusionStrength: 1
+    - _OrganismBrightness: 1.35
+    - _OrganismSize: 0.42
+    - _OuterActivity: 0.9
     - _Parallax: 0.005
+    - _ParticleAmount: 1
+    - _ParticleBrightness: 0.7
+    - _PlanktonAmount: 1.15
+    - _PlanktonBrightness: 0.85
+    - _PlanktonSize: 0.85
+    - _PressureRippleStrength: 0.85
+    - _PropulsionStrength: 0.65
     - _PulseSpeed: 1.5
     - _PulseStrength: 1.8
     - _PulseWidth: 0.1
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _RibbonBrightness: 1.05
     - _RibbonCount: 6
+    - _RibbonScale: 2.1
+    - _RibbonSharpness: 2.6
     - _RibbonSoftness: 0.16
     - _RibbonSpacing: 0.64
     - _RibbonTwist: 0.65
     - _RibbonWidth: 0.12
+    - _RippleStrength: 0.72
+    - _RotationSpeed: 0.38
     - _Saturation: 1.2
+    - _SecondaryRibbonStrength: 0.52
+    - _ShapeDistortion: 0.72
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SparkStrength: 1.2
     - _SpecularHighlights: 1
     - _Speed: 0.16
+    - _SphereSize: 0.82
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
+    - _SwimRange: 0.62
+    - _SwimSpeed: 0.75
     - _Turbulence: 0.8
     - _VerticalDrift: 0.08
     - _Vignette: 0.28
+    - _VolumeScale: 0.92
+    - _VolumeSoftness: 0.26
+    - _VolumeStrength: 0.72
+    - _VolumeThreshold: 0.54
+    - _VortexStrength: 0.62
+    - _WakeLength: 1.25
+    - _WakeStrength: 0.75
+    - _WakeWidth: 0.3
+    - _WanderStrength: 0.2
     - _WarpScale: 1.25
     - _WarpStrength: 1.15
+    - _WaterHaze: 0.35
     - _WaveAmplitude: 0.42
     - _WaveFrequency: 2.1
     - _WaveSpeed: 0.42
@@ -177,11 +251,21 @@ Material:
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     m_Colors:
+    - _AccentColor: {r: 0.55, g: 0.08, b: 1, a: 1}
     - _BackgroundColor: {r: 0.001, g: 0.004, b: 0.012, a: 1}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BiolumeA: {r: 0, g: 0.95, b: 0.82, a: 1}
+    - _BiolumeB: {r: 0.12, g: 0.32, b: 1, a: 1}
+    - _BiolumeC: {r: 0.48, g: 0.06, b: 0.95, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _CoreColor: {r: 0.75, g: 0.95, b: 1, a: 1}
+    - _DeepColor: {r: 0.001, g: 0.004, b: 0.018, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _GlowColor: {r: 0, g: 0.85, b: 0.95, a: 1}
+    - _HotColor: {r: 0.35, g: 0.16, b: 1, a: 1}
+    - _MidColor: {r: 0, g: 0.035, b: 0.08, a: 1}
+    - _ShallowColor: {r: 0, g: 0.11, b: 0.15, a: 1}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+    - _UpperColor: {r: 0, g: 0.11, b: 0.16, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
