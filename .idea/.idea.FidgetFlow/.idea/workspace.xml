@@ -30,8 +30,15 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$USER_HOME$/Downloads/Starloom_ContinuousLines.shader" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/Downloads/Starloom_Crisp_Optimized.shader" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/Downloads/Starloom_DenseTraveling.shader" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/Downloads/Starloom_FrequencyChoreography.shader" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/Downloads/Starloom_HighRes.shader" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/Downloads/Starloom_MusicalChoreography_ExactVisuals.shader" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/Downloads/Starloom_MusicalChoreography_VisualsLocked.shader" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/Downloads/Starloom_OrganicDetail_Upgrade.shader" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/Downloads/Starloom_Synapse_Unbroken.shader" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectColorInfo">{
@@ -106,7 +113,7 @@
       <workItem from="1782402565715" duration="4000" />
       <workItem from="1782402633607" duration="4000" />
       <workItem from="1783617427864" duration="6279000" />
-      <workItem from="1783779205618" duration="55807000" />
+      <workItem from="1783779205618" duration="59624000" />
     </task>
     <servers />
   </component>

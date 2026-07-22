@@ -27,10 +27,10 @@ Material:
     m_Floats:
     - _ArmCount: 3
     - _ArmWidth: 0.6
-    - _AudioBass: 0.11431117
-    - _AudioEnergy: 0.067451894
-    - _AudioHigh: 0.0138273975
-    - _AudioMid: 0.05801595
+    - _AudioBass: 0.1408651
+    - _AudioEnergy: 0.12820745
+    - _AudioHigh: 0.06690549
+    - _AudioMid: 0.15249635
     - _Brightness: 2
     - _ColorSpeed: 0.3
     - _ColorSpread: 4
@@ -49,7 +49,7 @@ Material:
     - _Layers: 4
     - _LineWidth: 0.15
     - _Mode: 0
-    - _RotationSpeed: 0.1
+    - _RotationSpeed: 0.25
     - _TargetX: -0.7269
     - _TargetY: 0.1889
     - _Tightness: 6

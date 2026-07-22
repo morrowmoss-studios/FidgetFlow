@@ -366,9 +366,18 @@ Shader "FidgetFlow/Starloom"
                         3.0
                     );
 
+                float nucleusValue =
+                    1.0 -
+                    smoothstep(
+                        radiusValue * 0.055,
+                        radiusValue * 0.22,
+                        distanceValue
+                    );
+
                 return
                     coreValue +
-                    haloValue;
+                    haloValue +
+                    nucleusValue * 0.58;
             }
 
             float2 GetSurgeCenter(
@@ -792,6 +801,26 @@ Shader "FidgetFlow/Starloom"
                         chosenDistance
                     );
 
+                float fineCoreValue =
+                    1.0 -
+                    smoothstep(
+                        widthValue * 0.18,
+                        widthValue * 0.72,
+                        chosenDistance
+                    );
+
+                float filamentVariation =
+                    0.78 +
+                    0.22 *
+                    sin(
+                        threadAmount * 46.0 +
+                        seedValue * 31.0 +
+                        timeValue * 0.34
+                    );
+
+                fineCoreValue *=
+                    filamentVariation;
+
                 float haloValue =
                     widthValue /
                     max(
@@ -810,6 +839,7 @@ Shader "FidgetFlow/Starloom"
 
                 return
                     coreValue +
+                    fineCoreValue * 0.48 +
                     haloValue;
             }
 
@@ -1022,6 +1052,32 @@ Shader "FidgetFlow/Starloom"
                         _AudioEnergy
                     );
 
+                // Overall energy amplifies the individual bands instead of
+                // replacing their separate musical personalities.
+                float energyLift =
+                    0.55 +
+                    energyValue *
+                    _EnergyReaction *
+                    1.45;
+
+                float bassMusic =
+                    saturate(
+                        bassValue *
+                        energyLift
+                    );
+
+                float midMusic =
+                    saturate(
+                        midValue *
+                        energyLift
+                    );
+
+                float highMusic =
+                    saturate(
+                        highValue *
+                        energyLift
+                    );
+
                 float2 uvValue =
                     input.uv;
 
@@ -1053,7 +1109,10 @@ Shader "FidgetFlow/Starloom"
                     ) *
                     (
                         0.012 +
-                        energyMotion * 0.015
+                        energyMotion * 0.010 +
+                        midMusic *
+                        _MidReaction *
+                        0.055
                     );
 
                 screenPosition =
@@ -1063,27 +1122,33 @@ Shader "FidgetFlow/Starloom"
                     );
 
                 float bassBreath =
-                    bassValue *
+                    bassMusic *
                     _BassReaction;
 
                 screenPosition /=
                     1.0 +
-                    bassBreath * 0.018;
+                    bassBreath * 0.072;
 
                 float2 surgeCenter =
                     GetSurgeCenter(
                         timeValue,
                         aspectValue,
-                        bassValue,
-                        energyValue
+                        bassMusic,
+                        saturate(
+                            midMusic * 0.82 +
+                            highMusic * 0.22
+                        )
                     );
 
                 float auraValue =
                     ClusterAura(
                         screenPosition,
                         surgeCenter,
-                        bassValue,
-                        energyValue
+                        bassMusic,
+                        saturate(
+                            midMusic * 0.72 +
+                            highMusic * 0.28
+                        )
                     );
 
                 float surgePhase =
@@ -1200,8 +1265,11 @@ Shader "FidgetFlow/Starloom"
                             GetNodePosition(
                                 currentCell,
                                 timeValue,
-                                bassValue,
-                                energyValue
+                                bassMusic,
+                                saturate(
+                                    midMusic * 0.86 +
+                                    energyValue * 0.24
+                                )
                             );
 
                         float perspectiveValue =
@@ -1231,8 +1299,11 @@ Shader "FidgetFlow/Starloom"
                             ClusterSurge(
                                 currentNodeWorld,
                                 surgeCenter,
-                                bassValue,
-                                energyValue
+                                bassMusic,
+                                saturate(
+                                    midMusic * 0.70 +
+                                    highMusic * 0.30
+                                )
                             );
 
                         float nodeSeed =
@@ -1255,9 +1326,9 @@ Shader "FidgetFlow/Starloom"
                             ) *
                             (
                                 1.0 +
-                                bassValue *
+                                bassMusic *
                                 _BassReaction *
-                                0.85 +
+                                1.65 +
                                 nodeSurge *
                                 _SurgeAmount *
                                 0.5
@@ -1265,9 +1336,14 @@ Shader "FidgetFlow/Starloom"
 
                         float bloomValue =
                             1.0 +
-                            bassValue *
+                            bassMusic *
                             _BassReaction *
-                            _JunctionBloom +
+                            _JunctionBloom *
+                            1.45 +
+                            highMusic *
+                            _HighReaction *
+                            _JunctionBloom *
+                            0.75 +
                             nodeSurge *
                             _SurgeAmount;
 
@@ -1280,13 +1356,20 @@ Shader "FidgetFlow/Starloom"
                             );
 
                         float nodeFlicker =
-                            0.82 +
-                            0.18 *
+                            0.76 +
+                            (
+                                0.18 +
+                                highMusic *
+                                _HighReaction *
+                                0.38
+                            ) *
                             sin(
                                 timeValue *
                                 (
                                     1.0 +
-                                    energyMotion
+                                    energyMotion * 0.35 +
+                                    midMusic * _MidReaction * 2.2 +
+                                    highMusic * _HighReaction * 6.5
                                 ) +
                                 nodeSeed * 35.0
                             );
@@ -1310,6 +1393,32 @@ Shader "FidgetFlow/Starloom"
                         nodeColor +=
                             currentNodeColor *
                             nodeGlow;
+
+                        float nodeMicroGlint =
+                            pow(
+                                saturate(
+                                    nodeGlow * 0.72
+                                ),
+                                2.4
+                            ) *
+                            (
+                                0.12 +
+                                highMusic *
+                                _HighReaction *
+                                0.42
+                            );
+
+                        nodeColor +=
+                            lerp(
+                                currentNodeColor,
+                                float3(
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                ),
+                                0.82
+                            ) *
+                            nodeMicroGlint;
 
                         surgeLightColor +=
                             lerp(
@@ -1351,8 +1460,11 @@ Shader "FidgetFlow/Starloom"
                                 GetNodePosition(
                                     neighborCell,
                                     timeValue,
-                                    bassValue,
-                                    energyValue
+                                    bassMusic,
+                                    saturate(
+                                        midMusic * 0.86 +
+                                        energyValue * 0.24
+                                    )
                                 );
 
                             float neighborPerspective =
@@ -1390,8 +1502,11 @@ Shader "FidgetFlow/Starloom"
                                 ClusterSurge(
                                     connectionWorldPosition,
                                     surgeCenter,
-                                    bassValue,
-                                    energyValue
+                                    bassMusic,
+                                    saturate(
+                                        midMusic * 0.70 +
+                                        highMusic * 0.30
+                                    )
                                 );
 
                             float connectionSeed =
@@ -1402,9 +1517,15 @@ Shader "FidgetFlow/Starloom"
                                 );
 
                             float connectionBoost =
+                                midMusic *
+                                _MidReaction *
+                                0.28 +
+                                highMusic *
+                                _HighReaction *
+                                0.12 +
                                 energyValue *
                                 _EnergyReaction *
-                                0.18;
+                                0.04;
 
                             float activationThreshold =
                                 1.0 -
@@ -1429,20 +1550,20 @@ Shader "FidgetFlow/Starloom"
                                     neighborNode,
                                     connectionSeed,
                                     timeValue,
-                                    bassValue,
-                                    energyValue,
+                                    bassMusic,
+                                    midMusic,
                                     threadAmount
                                 );
 
                             float endpointFade =
                                 smoothstep(
                                     0.0,
-                                    0.035,
+                                    0.008,
                                     threadAmount
                                 ) *
                                 smoothstep(
                                     0.0,
-                                    0.035,
+                                    0.008,
                                     1.0 -
                                     threadAmount
                                 );
@@ -1457,8 +1578,11 @@ Shader "FidgetFlow/Starloom"
                                     threadAmount,
                                     connectionSeed,
                                     timeValue,
-                                    midValue,
-                                    energyValue
+                                    midMusic,
+                                    saturate(
+                                        highMusic * 0.72 +
+                                        energyValue * 0.18
+                                    )
                                 );
 
                             pulseValue *=
@@ -1477,15 +1601,70 @@ Shader "FidgetFlow/Starloom"
                                     threadPhase
                                 );
 
+                            float strandFiber =
+                                0.86 +
+                                0.14 *
+                                sin(
+                                    threadAmount * 58.0 +
+                                    connectionSeed * 37.0 -
+                                    timeValue * 0.48
+                                );
+
+                            float strandSpark =
+                                pow(
+                                    saturate(
+                                        sin(
+                                            threadAmount * 31.0 -
+                                            timeValue *
+                                            (
+                                                1.6 +
+                                                highMusic *
+                                                _HighReaction *
+                                                4.2
+                                            ) +
+                                            connectionSeed * 52.0
+                                        ) *
+                                        0.5 +
+                                        0.5
+                                    ),
+                                    18.0
+                                ) *
+                                (
+                                    0.05 +
+                                    highMusic *
+                                    _HighReaction *
+                                    0.38
+                                );
+
                             threadColor +=
                                 currentThreadColor *
                                 threadValue *
+                                strandFiber *
                                 (
-                                    0.58 +
+                                    0.48 +
+                                    midMusic *
+                                    _MidReaction *
+                                    0.92 +
+                                    highMusic *
+                                    _HighReaction *
+                                    0.20 +
                                     energyValue *
                                     _EnergyReaction *
-                                    0.35
+                                    0.05
                                 );
+
+                            threadColor +=
+                                lerp(
+                                    currentThreadColor,
+                                    float3(
+                                        1.0,
+                                        1.0,
+                                        1.0
+                                    ),
+                                    0.72
+                                ) *
+                                threadValue *
+                                strandSpark;
 
                             pulseColor +=
                                 lerp(
@@ -1499,10 +1678,13 @@ Shader "FidgetFlow/Starloom"
                                 ) *
                                 pulseValue *
                                 (
-                                    0.85 +
-                                    midValue *
+                                    0.72 +
+                                    midMusic *
                                     _MidReaction *
-                                    1.3
+                                    2.35 +
+                                    highMusic *
+                                    _HighReaction *
+                                    0.32
                                 );
 
                             surgeLightColor +=
@@ -1515,9 +1697,16 @@ Shader "FidgetFlow/Starloom"
                                 connectionSurge *
                                 _SurgeAmount *
                                 (
-                                    0.55 +
-                                    bassValue * 0.55 +
-                                    energyValue * 0.7
+                                    0.42 +
+                                    bassMusic *
+                                    _BassReaction *
+                                    1.35 +
+                                    midMusic *
+                                    _MidReaction *
+                                    0.58 +
+                                    energyValue *
+                                    _EnergyReaction *
+                                    0.08
                                 );
 
                             accumulatedLight +=
@@ -1548,7 +1737,7 @@ Shader "FidgetFlow/Starloom"
                     BackgroundDust(
                         uvValue,
                         timeValue,
-                        highValue
+                        highMusic
                     );
 
                 float dustPhase =
@@ -1567,10 +1756,10 @@ Shader "FidgetFlow/Starloom"
                     ) *
                     dustValue *
                     (
-                        0.18 +
-                        highValue *
+                        0.12 +
+                        highMusic *
                         _HighReaction *
-                        0.55
+                        1.55
                     );
 
                 finalColor +=
@@ -1580,9 +1769,19 @@ Shader "FidgetFlow/Starloom"
                     ) *
                     _GlowStrength *
                     (
-                        0.12 +
-                        bassValue * 0.08 +
-                        energyValue * 0.1
+                        0.075 +
+                        bassMusic *
+                        _BassReaction *
+                        0.15 +
+                        midMusic *
+                        _MidReaction *
+                        0.11 +
+                        highMusic *
+                        _HighReaction *
+                        0.075 +
+                        energyValue *
+                        _EnergyReaction *
+                        0.018
                     );
 
                 float vignetteValue =

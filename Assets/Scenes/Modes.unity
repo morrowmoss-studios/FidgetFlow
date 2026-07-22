@@ -349,7 +349,7 @@ GameObject:
   - component: {fileID: 186897959}
   - component: {fileID: 186897958}
   m_Layer: 0
-  m_Name: Quad_Arcweave
+  m_Name: Quad_Starloom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
