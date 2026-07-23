@@ -10,10 +10,13 @@ EditorBuildSettings:
     guid: 48d7dbf21c7ee450498184631212888f
   - enabled: 1
     path: Assets/Scenes/Warning.unity
-    guid: 15bdb69d311d3423690f2de5fa7a3c93
+    guid: 5c44a6b08492347f0a8d376bc6366d29
   - enabled: 1
     path: Assets/Scenes/HomeMenu.unity
     guid: 23024b66cd11f44aa9f0e6f32d00c949
+  - enabled: 1
+    path: Assets/Scenes/PortalHub.unity
+    guid: d575b6e6f74a84ea99f27311dd761048
   - enabled: 1
     path: Assets/Scenes/Modes.unity
     guid: 109fc4689b7d84278a4aa4e3042dfe73
