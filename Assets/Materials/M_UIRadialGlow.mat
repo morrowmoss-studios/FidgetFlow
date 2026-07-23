@@ -105,14 +105,14 @@ Material:
     - _Divisions: 8
     - _DstBlend: 0
     - _DstBlendAlpha: 0
-    - _EdgeFade: 0.45
+    - _EdgeFade: 0.5
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _GlowPower: 0.65
+    - _GlowPower: 0.55
     - _GoldenSpiral: 0.5
-    - _InnerStrength: 2
+    - _InnerStrength: 1.75
     - _Layers: 4
     - _LineWidth: 0.15
     - _Metallic: 0

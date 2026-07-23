@@ -787,6 +787,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1893259698}
+  - component: {fileID: 1893259699}
   m_Layer: 0
   m_Name: PortalRoot
   m_TagString: Untagged
@@ -812,6 +813,29 @@ Transform:
   - {fileID: 1944513917}
   m_Father: {fileID: 1454263095}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1893259699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1893259697}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 454cbe6200fc94ead83b499b173e8c81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalGlowPulse
+  portalGlow: {fileID: 1964139392}
+  lightSpill: {fileID: 1979350568}
+  pulseDuration: 3
+  portalGlowMinAlpha: 0.45
+  portalGlowMaxAlpha: 0.65
+  lightSpillMinAlpha: 0.18
+  lightSpillMaxAlpha: 0.32
+  portalGlowMinScale: 1
+  portalGlowMaxScale: 1.04
+  lightSpillMinScale: 1
+  lightSpillMaxScale: 1.08
 --- !u!1 &1944513916
 GameObject:
   m_ObjectHideFlags: 0
@@ -967,8 +991,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 100.39563, y: -68.05383}
-  m_SizeDelta: {x: 582.2882, y: 579.8923}
+  m_AnchoredPosition: {x: 100, y: -70}
+  m_SizeDelta: {x: 540, y: 540}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1964139392
 MonoBehaviour:
@@ -983,7 +1007,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 2100000, guid: 6f4eb1b18f28c4183a958f15bf7a3cff, type: 2}
-  m_Color: {r: 0.3529412, g: 0.88235295, b: 1, a: 0.27450982}
+  m_Color: {r: 0.3529412, g: 0.88235295, b: 1, a: 0.5882353}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1042,8 +1066,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 99.197876, y: -66.85593}
-  m_SizeDelta: {x: 631.9783, y: 639.1656}
+  m_AnchoredPosition: {x: 99, y: -67}
+  m_SizeDelta: {x: 590, y: 590}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1979350568
 MonoBehaviour:
@@ -1058,7 +1082,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 2100000, guid: 6f4eb1b18f28c4183a958f15bf7a3cff, type: 2}
-  m_Color: {r: 0.3529412, g: 0.88235295, b: 1, a: 0.10980392}
+  m_Color: {r: 0.3529412, g: 0.88235295, b: 1, a: 0.3137255}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
