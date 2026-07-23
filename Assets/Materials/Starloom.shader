@@ -65,7 +65,7 @@ Shader "FidgetFlow/Starloom"
 
         Cull Off
         ZWrite Off
-        ZTest Always
+        ZTest LEqual
 
         Pass
         {
@@ -1029,9 +1029,15 @@ Shader "FidgetFlow/Starloom"
             }
 
             half4 frag(
-                Varyings input
+            Varyings input
             ) : SV_Target
             {
+                 // Hide everything outside the circular portal opening.
+                float2 portalUV = input.uv - 0.5;
+                float portalDistance = length(portalUV);
+
+                clip(0.49 - portalDistance);
+
                 float bassValue =
                     saturate(
                         _AudioBass
