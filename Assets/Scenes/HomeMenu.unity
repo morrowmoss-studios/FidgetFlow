@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 260536623}
   - component: {fileID: 260536622}
   - component: {fileID: 260536621}
+  - component: {fileID: 260536625}
   m_Layer: 5
   m_Name: TransitionCanvas
   m_TagString: Untagged
@@ -215,13 +216,25 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1553858516}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 564135436}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!225 &260536625
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 260536620}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &564135434
 GameObject:
   m_ObjectHideFlags: 0
@@ -233,7 +246,7 @@ GameObject:
   - component: {fileID: 564135436}
   - component: {fileID: 564135435}
   m_Layer: 0
-  m_Name: PortalEnterTransitionController
+  m_Name: DimensionTransitionController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -254,12 +267,16 @@ MonoBehaviour:
   enterButton: {fileID: 1944513918}
   rainbowVortexOverlay: {fileID: 1553858515}
   rainbowVortexImage: {fileID: 1553858517}
+  blackFadeOverlay: {fileID: 0}
   portalRoot: {fileID: 1893259698}
   portalGlowPulse: {fileID: 1893259699}
   portalGlow: {fileID: 1964139392}
   lightSpill: {fileID: 1979350568}
   transitionDuration: 2.6
   holdDuration: 0.15
+  fadeToBlackDuration: 1
+  blackHoldDuration: 0.2
+  fadeFromBlackDuration: 1
   startScale: {x: 1, y: 1, z: 1}
   endScale: {x: 1.15, y: 1.15, z: 1.15}
   portalGlowTargetAlpha: 0.58
@@ -336,6 +353,31 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  fadeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  destinationScene: PortalHub
 --- !u!4 &564135436
 Transform:
   m_ObjectHideFlags: 0
@@ -348,7 +390,8 @@ Transform:
   m_LocalPosition: {x: 1193.0319, y: 550.2334, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 260536624}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &584545390
@@ -1422,5 +1465,4 @@ SceneRoots:
   - {fileID: 1036727629}
   - {fileID: 940675652}
   - {fileID: 1454263095}
-  - {fileID: 260536624}
   - {fileID: 564135436}
