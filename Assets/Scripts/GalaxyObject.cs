@@ -18,6 +18,8 @@ public class GalaxyObject : MonoBehaviour
     public string StableId => stableId;
     public float SpacingMultiplier => spacingMultiplier;
     public bool LockPosition => lockPosition;
+    
+    
 
 #if UNITY_EDITOR
     private void OnValidate()
