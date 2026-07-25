@@ -142,6 +142,7 @@ GameObject:
   - component: {fileID: 186897960}
   - component: {fileID: 186897959}
   - component: {fileID: 186897958}
+  - component: {fileID: 186897962}
   m_Layer: 0
   m_Name: Quad_Starloom
   m_TagString: Untagged
@@ -243,6 +244,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &186897962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 186897957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 348441a065e994d92a6d5546f42e08c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ModeTarget
+  modeId: Starloom
 --- !u!1 &263703181
 GameObject:
   m_ObjectHideFlags: 0
@@ -382,6 +396,7 @@ GameObject:
   - component: {fileID: 642209153}
   - component: {fileID: 642209152}
   - component: {fileID: 642209151}
+  - component: {fileID: 642209155}
   m_Layer: 0
   m_Name: Quad_Plasma
   m_TagString: Untagged
@@ -483,6 +498,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &642209155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 642209150}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 348441a065e994d92a6d5546f42e08c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ModeTarget
+  modeId: Plasma
 --- !u!1 &747266284
 GameObject:
   m_ObjectHideFlags: 0
@@ -495,6 +523,7 @@ GameObject:
   - component: {fileID: 747266287}
   - component: {fileID: 747266286}
   - component: {fileID: 747266285}
+  - component: {fileID: 747266289}
   m_Layer: 0
   m_Name: Quad_FibonacciTunnel
   m_TagString: Untagged
@@ -596,6 +625,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &747266289
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 747266284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 348441a065e994d92a6d5546f42e08c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ModeTarget
+  modeId: Fibonacci
 --- !u!1 &791778748
 GameObject:
   m_ObjectHideFlags: 0
@@ -906,6 +948,7 @@ GameObject:
   - component: {fileID: 871366106}
   - component: {fileID: 871366105}
   - component: {fileID: 871366104}
+  - component: {fileID: 871366108}
   m_Layer: 0
   m_Name: Quad_Kalidescope
   m_TagString: Untagged
@@ -1007,6 +1050,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &871366108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 871366103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 348441a065e994d92a6d5546f42e08c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ModeTarget
+  modeId: Kalidescope
 --- !u!1 &904968456
 GameObject:
   m_ObjectHideFlags: 0
@@ -1019,6 +1075,7 @@ GameObject:
   - component: {fileID: 904968459}
   - component: {fileID: 904968458}
   - component: {fileID: 904968457}
+  - component: {fileID: 904968461}
   m_Layer: 0
   m_Name: Quad_LavaLamp
   m_TagString: Untagged
@@ -1120,6 +1177,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &904968461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 904968456}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 348441a065e994d92a6d5546f42e08c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ModeTarget
+  modeId: LavaLamp
 --- !u!1 &1156861244
 GameObject:
   m_ObjectHideFlags: 0
@@ -1132,6 +1202,7 @@ GameObject:
   - component: {fileID: 1156861247}
   - component: {fileID: 1156861246}
   - component: {fileID: 1156861245}
+  - component: {fileID: 1156861249}
   m_Layer: 0
   m_Name: Quad_UrchinZoom
   m_TagString: Untagged
@@ -1233,6 +1304,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1156861249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1156861244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 348441a065e994d92a6d5546f42e08c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ModeTarget
+  modeId: UrchinZoom
 --- !u!1 &1438634097
 GameObject:
   m_ObjectHideFlags: 0

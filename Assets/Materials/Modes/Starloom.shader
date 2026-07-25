@@ -52,6 +52,10 @@ Shader "FidgetFlow/Starloom"
         _AudioMid ("Audio Mid", Range(0.0, 1.0)) = 0.0
         _AudioHigh ("Audio High", Range(0.0, 1.0)) = 0.0
         _AudioEnergy ("Audio Energy", Range(0.0, 1.0)) = 0.0
+        
+        [Header(Portal Preview)]
+        [Toggle] _UsePortalMask ("Use Circular Portal Mask", Float) = 0
+        _PortalMaskRadius ("Portal Mask Radius", Range(0.1, 0.5)) = 0.49
     }
 
     SubShader
@@ -135,6 +139,9 @@ Shader "FidgetFlow/Starloom"
                 float _AudioMid;
                 float _AudioHigh;
                 float _AudioEnergy;
+            
+                float _UsePortalMask;
+                float _PortalMaskRadius;
             CBUFFER_END
 
             static const float LOOM_TWO_PI = 6.28318530718;
@@ -1032,12 +1039,13 @@ Shader "FidgetFlow/Starloom"
             Varyings input
             ) : SV_Target
             {
-                 // Hide everything outside the circular portal opening.
-                float2 portalUV = input.uv - 0.5;
-                float portalDistance = length(portalUV);
+                 if (_UsePortalMask > 0.5)
+                {
+                    float2 portalUV = input.uv - 0.5;
+                    float portalDistance = length(portalUV);
 
-                clip(0.49 - portalDistance);
-
+                     clip(_PortalMaskRadius - portalDistance);
+                }
                 float bassValue =
                     saturate(
                         _AudioBass

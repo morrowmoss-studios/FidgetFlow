@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(GalaxyObject))]
 public class PortalController : MonoBehaviour
@@ -128,14 +129,8 @@ public class PortalController : MonoBehaviour
 
         isOpening = true;
 
-        /*
-         * We will connect this to your existing Modes-scene manager
-         * once we use the actual class and method names from your project.
-         */
-        Debug.Log(
-            $"Open shared Modes scene using mode '{modeId}'.",
-            this
-        );
+        ModeManager.SetSelectedMode(modeId);
+        SceneManager.LoadScene("Modes");
     }
 
     public void FinishOpening()
