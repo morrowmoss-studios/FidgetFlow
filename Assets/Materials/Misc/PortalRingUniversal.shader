@@ -41,6 +41,19 @@ Shader "FidgetFlow/PortalRingUniversal"
         _AudioPacketBoost ("Audio Packet Boost", Range(0.0, 3.0)) = 0.35
         _AudioSpeedBoost ("Audio Speed Boost", Range(0.0, 2.0)) = 0.20
 
+        [Header(StarLoom Ring Filaments)]
+        [Toggle] _UseStarloomFilaments ("Use StarLoom Filaments", Float) = 0.0
+        [HDR] _FilamentColorA ("Filament Color A", Color) = (0.20, 0.70, 1.00, 1.0)
+        [HDR] _FilamentColorB ("Filament Color B", Color) = (0.90, 0.25, 0.75, 1.0)
+        _RingMajorRadius ("Ring Major Radius", Range(0.1, 10.0)) = 2.5
+        _FilamentCount ("Filament Count", Range(1.0, 8.0)) = 4.0
+        _FilamentSpeed ("Filament Drift Speed", Range(-2.0, 2.0)) = 0.08
+        _FilamentAngularWidth ("Filament Angular Width", Range(0.001, 0.08)) = 0.012
+        _FilamentTubeLength ("Filament Reach Across Ring", Range(0.05, 1.0)) = 0.48
+        _FilamentStrength ("Filament Strength", Range(0.0, 3.0)) = 0.65
+        _FilamentPulseSpeed ("Filament Pulse Speed", Range(0.0, 4.0)) = 0.75
+        _FilamentAudioBoost ("Filament Audio Boost", Range(0.0, 3.0)) = 0.30
+
         [Header(Rendering)]
         _Alpha ("Alpha", Range(0.0, 1.0)) = 1.0
     }
@@ -117,6 +130,18 @@ Shader "FidgetFlow/PortalRingUniversal"
                 float _AudioBrightnessBoost;
                 float _AudioPacketBoost;
                 float _AudioSpeedBoost;
+
+                float _UseStarloomFilaments;
+                float4 _FilamentColorA;
+                float4 _FilamentColorB;
+                float _RingMajorRadius;
+                float _FilamentCount;
+                float _FilamentSpeed;
+                float _FilamentAngularWidth;
+                float _FilamentTubeLength;
+                float _FilamentStrength;
+                float _FilamentPulseSpeed;
+                float _FilamentAudioBoost;
 
                 float _Alpha;
             CBUFFER_END
@@ -217,6 +242,97 @@ Shader "FidgetFlow/PortalRingUniversal"
                 wideHalo * 0.45;
             }
 
+            float StarloomFilamentLayer(
+                float ringCoordinate,
+                float tubeAngle01,
+                float timeValue,
+                float audioEnergy,
+                out float colorMix
+            )
+            {
+                float filamentTotal = 0.0;
+                float weightedColorMix = 0.0;
+
+                int filamentCount = clamp(
+                    (int)round(_FilamentCount),
+                    1,
+                    8
+                );
+
+                // The portal-facing inner edge of the torus is centered at 0.5.
+                float innerDistance = abs(tubeAngle01 - 0.5);
+                innerDistance = min(innerDistance, 1.0 - innerDistance);
+
+                float innerReach = 1.0 - smoothstep(
+                    _FilamentTubeLength * 0.35,
+                    _FilamentTubeLength,
+                    innerDistance
+                );
+
+                for (int filamentIndex = 0;
+                     filamentIndex < 8;
+                     filamentIndex++)
+                {
+                    if (filamentIndex >= filamentCount)
+                    {
+                        break;
+                    }
+
+                    float seed = Hash11(filamentIndex + 19.73);
+                    float secondarySeed = Hash11(filamentIndex + 71.41);
+
+                    float basePosition =
+                        ((float)filamentIndex / max((float)filamentCount, 1.0)) +
+                        (seed - 0.5) * 0.15;
+
+                    float lifePhase = frac(
+                        timeValue * _FilamentPulseSpeed *
+                        (0.17 + secondarySeed * 0.11) +
+                        seed
+                    );
+
+                    float fadeIn = smoothstep(0.0, 0.18, lifePhase);
+                    float fadeOut = 1.0 - smoothstep(0.55, 1.0, lifePhase);
+                    float life = fadeIn * fadeOut;
+
+                    float driftedPosition = frac(
+                        basePosition +
+                        timeValue * _FilamentSpeed *
+                        (0.65 + secondarySeed * 0.55)
+                    );
+
+                    // Slight diagonal slant across the tube makes these read as
+                    // threads crawling from the portal onto the ring.
+                    float diagonalOffset =
+                        (tubeAngle01 - 0.5) *
+                        (0.05 + secondarySeed * 0.08);
+
+                    float angularDistance = WrappedDistance(
+                        ringCoordinate,
+                        frac(driftedPosition + diagonalOffset)
+                    );
+
+                    float angularMask = 1.0 - smoothstep(
+                        _FilamentAngularWidth * 0.25,
+                        _FilamentAngularWidth,
+                        angularDistance
+                    );
+
+                    float filament = angularMask * innerReach * life;
+                    filamentTotal += filament;
+                    weightedColorMix += filament * secondarySeed;
+                }
+
+                filamentTotal = saturate(filamentTotal);
+                colorMix = filamentTotal > 0.0001
+                    ? saturate(weightedColorMix / max(filamentTotal, 0.0001))
+                    : 0.0;
+
+                return filamentTotal *
+                       _FilamentStrength *
+                       (1.0 + audioEnergy * _FilamentAudioBoost);
+            }
+
             half4 frag(Varyings input) : SV_Target
             {
                 float audioBass =
@@ -240,6 +356,8 @@ Shader "FidgetFlow/PortalRingUniversal"
                     This ignores the torus UV map completely, so there are no
                     barcode seams or stretched vertical bands.
                 */
+                float radialDistance = length(input.positionOS.xz);
+
                 float angleValue =
                     atan2(
                         input.positionOS.z,
@@ -252,6 +370,15 @@ Shader "FidgetFlow/PortalRingUniversal"
                         PORTAL_TWO_PI +
                         0.5
                     );
+
+                float tubeAngle = atan2(
+                    input.positionOS.y,
+                    radialDistance - _RingMajorRadius
+                );
+
+                float tubeAngle01 = frac(
+                    tubeAngle / PORTAL_TWO_PI + 0.5
+                );
 
                 float speedMultiplier =
                     1.0 +
@@ -465,6 +592,28 @@ Shader "FidgetFlow/PortalRingUniversal"
                     _GlowColor.rgb *
                     secondaryLight *
                     _EmissionStrength;
+
+                if (_UseStarloomFilaments > 0.5)
+                {
+                    float filamentColorMix;
+                    float filamentLayer = StarloomFilamentLayer(
+                        ringCoordinate,
+                        tubeAngle01,
+                        timeValue,
+                        audioEnergy,
+                        filamentColorMix
+                    );
+
+                    float3 filamentColor = lerp(
+                        _FilamentColorA.rgb,
+                        _FilamentColorB.rgb,
+                        filamentColorMix
+                    );
+
+                    finalColor += filamentColor *
+                                  filamentLayer *
+                                  _EmissionStrength;
+                }
 
                 return half4(
                     finalColor,
