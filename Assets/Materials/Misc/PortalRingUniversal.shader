@@ -178,30 +178,43 @@ Shader "FidgetFlow/PortalRingUniversal"
             }
 
             float EnergyPacket(
-                float ringCoordinate,
-                float packetPosition,
-                float packetWidth,
-                float packetSharpness
+            float ringCoordinate,
+            float packetPosition,
+            float packetWidth,
+            float packetSharpness
             )
             {
                 float distanceValue =
-                    WrappedDistance(
-                        ringCoordinate,
-                        packetPosition
-                    );
+                WrappedDistance(
+                ringCoordinate,
+                packetPosition
+                 );
 
-                float packetValue =
-                    1.0 -
-                    smoothstep(
-                        packetWidth * 0.18,
-                        packetWidth,
-                        distanceValue
-                    );
-
-                return pow(
-                    saturate(packetValue),
-                    packetSharpness
+                float softCore =
+                 1.0 -
+                smoothstep(
+                packetWidth * 0.10,
+                packetWidth,
+                distanceValue
                 );
+
+                float wideHalo =
+                 1.0 -
+                smoothstep(
+                packetWidth,
+                packetWidth * 3.2,
+                distanceValue
+                );
+
+                softCore =
+                pow(
+                saturate(softCore),
+                max(packetSharpness * 0.45, 1.0)
+                );
+
+                return
+                softCore * 0.55 +
+                wideHalo * 0.45;
             }
 
             half4 frag(Varyings input) : SV_Target
@@ -440,7 +453,11 @@ Shader "FidgetFlow/PortalRingUniversal"
                     _EmissionStrength;
 
                 finalColor +=
-                    _PacketColor.rgb *
+                    lerp(
+                        _GlowColor.rgb,
+                        _PacketColor.rgb,
+                        0.35
+                    ) *
                     primaryLight *
                     _EmissionStrength;
 

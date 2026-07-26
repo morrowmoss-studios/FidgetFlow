@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_PortalRingUniversal
-  m_Shader: {fileID: 4800000, guid: d7032a465152e4b45a347b790ca5e508, type: 3}
+  m_Name: M_StarloomFilaments
+  m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -17,7 +17,8 @@ Material:
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
-  stringTagMap: {}
+  stringTagMap:
+    RenderType: Opaque
   disabledShaderPasses:
   - MOTIONVECTORS
   m_LockedProperties: 
@@ -83,24 +84,10 @@ Material:
     m_Ints: []
     m_Floats:
     - _AddPrecomputedVelocity: 0
-    - _Alpha: 1
     - _AlphaClip: 0
     - _AlphaToMask: 0
-    - _AudioBass: 0
-    - _AudioBrightnessBoost: 0.16
-    - _AudioEmissionBoost: 0.1
-    - _AudioEnergy: 0
-    - _AudioFlowBoost: 0.1
-    - _AudioHigh: 0
-    - _AudioMid: 0
-    - _AudioPacketBoost: 0.18
-    - _AudioRimBoost: 0.25
-    - _AudioSpeedBoost: 0.08
-    - _BaseBrightness: 0.22
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
-    - _BreathAmount: 0.035
-    - _BreathSpeed: 0.3
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
@@ -110,63 +97,32 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _DstBlendAlpha: 0
-    - _EdgeSoftness: 0.28
-    - _EmissionStrength: 0.4
     - _EnvironmentReflections: 1
-    - _FlowScale: 3
-    - _FlowSpeed: 0.45
-    - _FlowStrength: 0.12
-    - _FlowWidth: 0.08
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _InnerRimPosition: 1
-    - _InnerRimStrength: 0
-    - _InnerRimWidth: 0.16
     - _Metallic: 0
-    - _NoiseScale: 18
-    - _NoiseSpeed: 0.16
-    - _NoiseStrength: 0.16
     - _OcclusionStrength: 1
-    - _OuterDim: 0.18
-    - _PacketCount: 2
-    - _PacketSharpness: 2
-    - _PacketSpeed: 0.12
-    - _PacketStrength: 0.22
-    - _PacketWidth: 0.09
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _SecondaryFlowScale: 5
-    - _SecondaryFlowSpeed: -0.18
-    - _SecondaryFlowStrength: 0.04
-    - _SecondaryPacketSpeed: -0.06
-    - _SecondaryPacketStrength: 0.08
-    - _SecondaryPacketWidth: 0.07
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
-    - _VariationAmount: 0.035
-    - _VariationScale: 7
-    - _VariationSpeed: 0.06
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.722, g: 0.862, b: 1.2, a: 1}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _EnergyColor: {r: 0.35, g: 0.75, b: 1.6, a: 1}
-    - _GlowColor: {r: 1.2888396, g: 1.8011591, b: 2.297397, a: 1}
-    - _HotColor: {r: 0.75, g: 0.9, b: 2, a: 1}
-    - _PacketColor: {r: 2.5044258, g: 2.5756793, b: 2.6390157, a: 1}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &4681946699388393126
+--- !u!114 &2676708058648200700
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
