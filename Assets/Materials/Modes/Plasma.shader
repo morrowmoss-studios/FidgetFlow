@@ -24,6 +24,10 @@ Shader "FidgetFlow/Plasma"
         _Contrast ("Contrast", Range(0.5, 3.0)) = 1.3
         _Saturation ("Color Saturation", Range(0.0, 2.0)) = 1.15
 
+        [Header(Portal Mask)]
+        _PortalRadius ("Portal Radius", Range(0.5, 1.1)) = 1.0
+        _PortalEdgeSoftness ("Portal Edge Softness", Range(0.001, 0.15)) = 0.025
+
         [Header(Color)]
         _ColorShift ("Color Shift", Range(0.0, 1.0)) = 0.0
         _ColorSpeed ("Color Motion", Range(0.0, 1.0)) = 0.06
@@ -41,15 +45,18 @@ Shader "FidgetFlow/Plasma"
     {
         Tags
         {
-            "RenderType" = "Opaque"
+            "RenderType" = "Transparent"
             "RenderPipeline" = "UniversalPipeline"
-            "Queue" = "Geometry"
+            "Queue" = "Transparent"
         }
 
         LOD 100
+
         Cull Off
         ZWrite Off
-        ZTest Always
+        ZTest LEqual
+
+        Blend SrcAlpha OneMinusSrcAlpha
 
         Pass
         {
@@ -69,11 +76,13 @@ Shader "FidgetFlow/Plasma"
             struct Attributes
             {
                 float4 positionOS : POSITION;
+                float2 uv : TEXCOORD0;
             };
 
             struct Varyings
             {
                 float4 positionHCS : SV_POSITION;
+                float2 uv : TEXCOORD0;
             };
 
             CBUFFER_START(UnityPerMaterial)
@@ -97,6 +106,9 @@ Shader "FidgetFlow/Plasma"
                 float _Contrast;
                 float _Saturation;
 
+                float _PortalRadius;
+                float _PortalEdgeSoftness;
+
                 float _ColorShift;
                 float _ColorSpeed;
                 float4 _CoreGlowColor;
@@ -115,6 +127,8 @@ Shader "FidgetFlow/Plasma"
 
                 output.positionHCS =
                     TransformObjectToHClip(input.positionOS.xyz);
+
+                output.uv = input.uv;
 
                 return output;
             }
@@ -275,18 +289,35 @@ Shader "FidgetFlow/Plasma"
 
             half4 frag(Varyings input) : SV_Target
             {
-                float2 screenUV =
-                    input.positionHCS.xy /
-                    _ScreenParams.xy;
+                /*
+                    OBJECT UV SPACE
+
+                    The visual now stays attached to this quad instead
+                    of sampling the entire screen.
+                */
 
                 float2 uv =
-                    screenUV * 2.0 - 1.0;
+                    input.uv * 2.0 - 1.0;
 
-                float aspect =
-                    _ScreenParams.x /
-                    max(_ScreenParams.y, 1.0);
+                float radius =
+                    length(uv);
 
-                uv.x *= aspect;
+                /*
+                    CIRCULAR PORTAL MASK
+
+                    Outside the portal becomes transparent.
+                */
+
+                float portalAlpha =
+                    1.0 -
+                    smoothstep(
+                        _PortalRadius -
+                        _PortalEdgeSoftness,
+                        _PortalRadius,
+                        radius
+                    );
+
+                clip(portalAlpha - 0.001);
 
                 /*
                     AUDIO BOOSTS
@@ -332,23 +363,23 @@ Shader "FidgetFlow/Plasma"
                     mid *
                     0.035;
 
-                uv = Rotate2D(
-                    uv,
-                    rotation
-                );
+                uv =
+                    Rotate2D(
+                        uv,
+                        rotation
+                    );
 
-                float radius =
+                radius =
                     length(uv);
 
                 float angle =
-                    atan2(uv.y, uv.x);
+                    atan2(
+                        uv.y,
+                        uv.x
+                    );
 
                 /*
                     FIXED WHOLE-NUMBER SEGMENT COUNT
-
-                    Audio no longer changes the symmetry count.
-                    This prevents a tear where atan2 wraps from
-                    positive PI to negative PI.
                 */
 
                 float segmentCount =
@@ -382,9 +413,6 @@ Shader "FidgetFlow/Plasma"
 
                 /*
                     POLAR DOMAIN
-
-                    Bass still makes the structure breathe,
-                    but it does not alter the segment count.
                 */
 
                 float audioStretch =
@@ -658,9 +686,6 @@ Shader "FidgetFlow/Plasma"
 
                 /*
                     COLOR
-
-                    normalizedAngle is continuous across the
-                    atan2 wrap after passing through frac().
                 */
 
                 float hue =
@@ -839,7 +864,7 @@ Shader "FidgetFlow/Plasma"
 
                 return half4(
                     color,
-                    1.0
+                    portalAlpha
                 );
             }
 
