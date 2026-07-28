@@ -15,13 +15,13 @@ public class LavaLampBlobs : MonoBehaviour, IPortalAccessory
     [Min(0f)] [SerializeField] private float surfaceOffset = 0.018f;
 
     [Header("Population")]
-    [Range(1, 24)] [SerializeField] private int maximumActiveCells = 9;
+    [Range(1, 24)] [SerializeField] private int maximumActiveCells = 7;
     [Min(0.03f)] [SerializeField] private float minimumSpawnDelay = 0.16f;
     [Min(0.03f)] [SerializeField] private float maximumSpawnDelay = 0.42f;
 
     [Header("Cell Size")]
-    [Min(0.005f)] [SerializeField] private float minimumSize = 0.035f;
-    [Min(0.005f)] [SerializeField] private float maximumSize = 0.085f;
+    [Min(0.005f)] [SerializeField] private float minimumSize = 0.008f;
+    [Min(0.005f)] [SerializeField] private float maximumSize = 0.017f;
     [Range(0.2f, 2f)] [SerializeField] private float minimumFlattening = 0.45f;
     [Range(0.2f, 2f)] [SerializeField] private float maximumFlattening = 0.85f;
     [Range(0f, 0.8f)] [SerializeField] private float irregularity = 0.28f;
