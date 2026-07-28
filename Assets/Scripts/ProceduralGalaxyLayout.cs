@@ -14,33 +14,33 @@ public class ProceduralGalaxyLayout : MonoBehaviour
     [Header("Galaxy Size")]
     [Tooltip("Minimum outer radius when only a few objects exist.")]
     [Min(1f)]
-    [SerializeField] private float baseRadius = 7f;
+    [SerializeField] private float baseRadius = 4.5f;
 
     [Tooltip("How quickly the galaxy expands as more objects are added.")]
     [Min(0f)]
-    [SerializeField] private float radiusGrowth = 1.25f;
+    [SerializeField] private float radiusGrowth = 0.8f;
 
     [Tooltip("Keeps the center clear around the player/camera.")]
     [Min(0f)]
-    [SerializeField] private float centerClearRadius = 2.5f;
+    [SerializeField] private float centerClearRadius = 1.5f;
 
     [Header("Galaxy Shape")]
-    [Tooltip("Maximum height above or below the galaxy's middle plane.")]
+    [Tooltip("Maximum depth in front of or behind the galaxy's middle plane.")]
     [Min(0f)]
-    [SerializeField] private float verticalThickness = 2.25f;
+    [SerializeField] private float depthThickness = 1.25f;
 
     [Range(0f, 1f)]
-    [Tooltip("0 creates a flat disc. 1 uses the full vertical thickness.")]
+    [Tooltip("0 creates a flat disc. 1 uses the full depth thickness.")]
     [SerializeField] private float thicknessAtOuterEdge = 0.65f;
 
     [Header("Spacing")]
     [Tooltip("Preferred minimum distance between objects.")]
     [Min(0.1f)]
-    [SerializeField] private float preferredSpacing = 3.25f;
+    [SerializeField] private float preferredSpacing = 2.4f;
 
     [Tooltip("The generator may reduce spacing to this value if the galaxy becomes crowded.")]
     [Min(0.1f)]
-    [SerializeField] private float minimumAllowedSpacing = 1.75f;
+    [SerializeField] private float minimumAllowedSpacing = 1.6f;
 
     [Tooltip("Attempts made before the galaxy expands and retries.")]
     [Min(10)]
@@ -140,10 +140,6 @@ public class ProceduralGalaxyLayout : MonoBehaviour
 
     private float CalculateInitialRadius(int objectCount)
     {
-        /*
-         * Square-root growth gives additional objects more area
-         * without making a six-object galaxy absurdly enormous.
-         */
         float countGrowth = Mathf.Sqrt(Mathf.Max(0, objectCount - 1));
         return baseRadius + countGrowth * radiusGrowth;
     }
@@ -192,11 +188,6 @@ public class ProceduralGalaxyLayout : MonoBehaviour
     )
     {
         float random01 = NextFloat(random);
-
-        /*
-         * sqrt(random) distributes points evenly by area.
-         * Using plain random would crowd too many objects near the center.
-         */
         float radialFraction = Mathf.Sqrt(random01);
 
         float radius = Mathf.Lerp(
@@ -227,9 +218,6 @@ public class ProceduralGalaxyLayout : MonoBehaviour
                 NextFloat(random)
             ) * Mathf.Deg2Rad;
 
-            /*
-             * Blend between a fully random disc angle and a spiral-arm angle.
-             */
             angle = Mathf.LerpAngle(
                 completelyRandomAngle * Mathf.Rad2Deg,
                 (spiralAngle + armScatterRadians) * Mathf.Rad2Deg,
@@ -241,32 +229,29 @@ public class ProceduralGalaxyLayout : MonoBehaviour
             angle = NextFloat(random) * Mathf.PI * 2f;
         }
 
-        float x = Mathf.Cos(angle) * radius;
-        float z = Mathf.Sin(angle) * radius;
-
         /*
-         * The disc gets slightly thicker toward the outside,
-         * like a loose 3D galaxy rather than a flat menu.
+         * The visible galaxy now lives in LOCAL X/Y, facing the camera.
+         * Z is used only for depth. This prevents the portals from reading
+         * as one edge-on line.
          */
+        float x = Mathf.Cos(angle) * radius;
+        float y = Mathf.Sin(angle) * radius;
+
         float edgeThickness = Mathf.Lerp(
             1f - thicknessAtOuterEdge,
             1f,
             radialFraction
         );
 
-        float verticalRange = verticalThickness * edgeThickness;
+        float depthRange = depthThickness * edgeThickness;
 
-        /*
-         * Averaging random values biases most objects toward the middle plane
-         * while still allowing occasional higher and lower objects.
-         */
-        float verticalRandom =
+        float depthRandom =
             (NextFloat(random) + NextFloat(random) + NextFloat(random)) / 3f;
 
-        float y = Mathf.Lerp(
-            -verticalRange,
-            verticalRange,
-            verticalRandom
+        float z = Mathf.Lerp(
+            -depthRange,
+            depthRange,
+            depthRandom
         );
 
         return new Vector3(x, y, z);
@@ -278,7 +263,7 @@ public class ProceduralGalaxyLayout : MonoBehaviour
         float galaxyRadius
     )
     {
-        Vector2 flatPosition = new Vector2(candidate.x, candidate.z);
+        Vector2 flatPosition = new Vector2(candidate.x, candidate.y);
 
         if (flatPosition.magnitude < centerClearRadius)
         {
@@ -372,8 +357,8 @@ public class ProceduralGalaxyLayout : MonoBehaviour
 
             Vector3 nextPoint = new Vector3(
                 Mathf.Cos(angle) * radius,
-                0f,
-                Mathf.Sin(angle) * radius
+                Mathf.Sin(angle) * radius,
+                0f
             );
 
             Gizmos.DrawLine(previousPoint, nextPoint);
