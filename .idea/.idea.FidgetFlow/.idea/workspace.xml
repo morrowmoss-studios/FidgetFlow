@@ -6,20 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="bff25256-b9c9-4daf-8040-961893ee88e9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FidgetFlow/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FidgetFlow/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/LavaLamp.shader" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/LavaLamp.shader" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/M_FibonacciTunnel.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/M_FibonacciTunnel.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/M_Kalidescope.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/M_Kalidescope.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/M_LavaLamp.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/M_LavaLamp.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/M_Mandelbrotjulia.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/M_Mandelbrotjulia.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/M_UrchinZoom.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/M_UrchinZoom.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/New Universal Render Pipeline Asset.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/New Universal Render Pipeline Asset.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/kalidescope.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/kalidescope.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AudioReactivityManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/AudioReactivityManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/UniversalRenderPipelineGlobalSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/UniversalRenderPipelineGlobalSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_StarloomPortalPreview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_StarloomPortalPreview.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/PortalHub.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/PortalHub.unity" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -124,7 +112,8 @@
       <workItem from="1782402565715" duration="4000" />
       <workItem from="1782402633607" duration="4000" />
       <workItem from="1783617427864" duration="6279000" />
-      <workItem from="1783779205618" duration="116571000" />
+      <workItem from="1783779205618" duration="117182000" />
+      <workItem from="1785437373245" duration="1640000" />
     </task>
     <servers />
   </component>
