@@ -118,7 +118,7 @@ Material:
     - _DustDriftSpeed: 0.022
     - _DustScale: 2.1
     - _DustSoftness: 1.4
-    - _DustStrength: 0.075
+    - _DustStrength: 0.14
     - _EnableShootingStar: 1
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
@@ -138,13 +138,13 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
-    - _StarBrightness: 1.25
+    - _StarBrightness: 1.15
     - _StarCoverage: 0.14
     - _StarDensity: 110
     - _StarSize: 1
     - _Surface: 0
-    - _TwinkleAmount: 0.42
-    - _TwinkleSpeed: 1.35
+    - _TwinkleAmount: 0.22
+    - _TwinkleSpeed: 0.85
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1

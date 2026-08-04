@@ -5,8 +5,12 @@ using UnityEngine.EventSystems;
 public sealed class GalaxyRotationController : MonoBehaviour
 {
     [Header("Input")]
-    [Min(0.001f)] [SerializeField] private float dragSensitivity = 0.18f;
-    [Min(0f)] [SerializeField] private float dragThresholdPixels = 8f;
+    [Min(0.001f)]
+    [SerializeField] private float dragSensitivity = 0.18f;
+
+    [Min(0f)]
+    [SerializeField] private float dragThresholdPixels = 8f;
+
     [SerializeField] private bool ignoreInputOverUI = true;
 
     [Header("Rotation")]
@@ -17,277 +21,328 @@ public sealed class GalaxyRotationController : MonoBehaviour
 
     [Header("Vertical Limits")]
     [SerializeField] private bool clampVerticalRotation = true;
-    [Range(-89f, 0f)] [SerializeField] private float minimumVerticalAngle = -35f;
-    [Range(0f, 89f)] [SerializeField] private float maximumVerticalAngle = 35f;
+
+    [Range(-89f, 0f)]
+    [SerializeField] private float minimumVerticalAngle = -35f;
+
+    [Range(0f, 89f)]
+    [SerializeField] private float maximumVerticalAngle = 35f;
 
     [Header("Inertia")]
     [SerializeField] private bool useInertia = true;
-    [Min(0.01f)] [SerializeField] private float velocityResponse = 18f;
-    [Min(0f)] [SerializeField] private float deceleration = 110f;
-    [Min(1f)] [SerializeField] private float maximumAngularSpeed = 420f;
-    [Min(0f)] [SerializeField] private float stopSpeed = 0.5f;
+
+    [Min(0f)]
+    [SerializeField] private float velocityResponse = 18f;
+
+    [Min(0f)]
+    [SerializeField] private float deceleration = 110f;
+
+    [Min(0f)]
+    [SerializeField] private float maximumAngularSpeed = 420f;
+
+    [Min(0f)]
+    [SerializeField] private float stopSpeed = 0.5f;
 
     [Header("Tap Filtering")]
-    [Min(0f)] [SerializeField] private float tapMovementTolerance = 12f;
-    [Min(0f)] [SerializeField] private float maximumTapDuration = 0.35f;
+    [Min(0f)]
+    [SerializeField] private float tapMovementTolerance = 12f;
 
-    public bool IsPointerDown => pointerDown;
-    public bool IsDragging => dragging;
-    public Vector2 AngularVelocity => angularVelocity;
-    public bool LastGestureWasTap { get; private set; }
+    [Min(0f)]
+    [SerializeField] private float maximumTapDuration = 0.35f;
 
-    private bool pointerDown;
-    private bool dragging;
-    private int activePointerId = int.MinValue;
-    private Vector2 pressPosition;
-    private Vector2 previousPointerPosition;
-    private float pressTime;
+    [Header("Automatic Rotation")]
+    [SerializeField] private bool useAutomaticRotation = true;
+
+    [Tooltip("Clockwise degrees per second while untouched.")]
+    [Min(0f)]
+    [SerializeField] private float automaticClockwiseSpeed = 2.25f;
+
+    [Tooltip("How long after release before the idle rotation begins returning.")]
+    [Min(0f)]
+    [SerializeField] private float automaticRotationDelay = 1.25f;
+
+    [Tooltip("How smoothly idle rotation returns after user input/inertia.")]
+    [Min(0.01f)]
+    [SerializeField] private float automaticRotationResponse = 2.5f;
+
+    public Vector2 CurrentAngularVelocity => angularVelocity;
+    public float CurrentAngularSpeed => angularVelocity.magnitude;
+    public bool IsUserDragging => isDragging;
+
     private Vector2 angularVelocity;
-    private float currentVerticalAngle;
+    private Vector2 lastPointerPosition;
+    private Vector2 pointerDownPosition;
+
+    private float verticalAngle;
+    private float pointerDownTime;
+    private float lastUserInputTime = -100f;
+
+    private bool pointerHeld;
+    private bool isDragging;
+    private bool pointerStartedOverUI;
 
     private void Awake()
     {
-        currentVerticalAngle = NormalizeSignedAngle(transform.localEulerAngles.x);
-    }
-
-    private void OnEnable()
-    {
-        currentVerticalAngle = NormalizeSignedAngle(transform.localEulerAngles.x);
-        pointerDown = false;
-        dragging = false;
-        activePointerId = int.MinValue;
-        angularVelocity = Vector2.zero;
-        LastGestureWasTap = false;
+        Vector3 euler = transform.localEulerAngles;
+        verticalAngle = NormalizeAngle(euler.x);
     }
 
     private void Update()
     {
-        if (TryReadPointer(out PointerState pointer))
+        HandlePointerInput();
+
+        if (!pointerHeld)
         {
-            ProcessPointer(pointer);
+            ApplyFreeMotion();
+        }
+    }
+
+    private void HandlePointerInput()
+    {
+        bool down;
+        bool held;
+        bool up;
+        Vector2 pointerPosition;
+
+        ReadPointer(out down, out held, out up, out pointerPosition);
+
+        if (down)
+        {
+            pointerHeld = true;
+            isDragging = false;
+            pointerDownPosition = pointerPosition;
+            lastPointerPosition = pointerPosition;
+            pointerDownTime = Time.unscaledTime;
+            pointerStartedOverUI =
+                ignoreInputOverUI &&
+                EventSystem.current != null &&
+                EventSystem.current.IsPointerOverGameObject();
+
+            angularVelocity = Vector2.zero;
+            lastUserInputTime = Time.unscaledTime;
+        }
+
+        if (held && pointerHeld && !pointerStartedOverUI)
+        {
+            Vector2 totalMovement = pointerPosition - pointerDownPosition;
+
+            if (!isDragging && totalMovement.magnitude >= dragThresholdPixels)
+            {
+                isDragging = true;
+            }
+
+            if (isDragging)
+            {
+                Vector2 delta = pointerPosition - lastPointerPosition;
+                ApplyDrag(delta);
+                lastUserInputTime = Time.unscaledTime;
+            }
+
+            lastPointerPosition = pointerPosition;
+        }
+
+        if (up && pointerHeld)
+        {
+            pointerHeld = false;
+
+            float heldDuration = Time.unscaledTime - pointerDownTime;
+            float movement = (pointerPosition - pointerDownPosition).magnitude;
+
+            bool wasTap =
+                heldDuration <= maximumTapDuration &&
+                movement <= tapMovementTolerance;
+
+            if (wasTap)
+            {
+                angularVelocity = Vector2.zero;
+            }
+
+            isDragging = false;
+            pointerStartedOverUI = false;
+            lastUserInputTime = Time.unscaledTime;
+        }
+    }
+
+    private void ApplyDrag(Vector2 pixelDelta)
+    {
+        float dt = Mathf.Max(Time.unscaledDeltaTime, 0.0001f);
+
+        float horizontalDelta =
+            allowHorizontalRotation
+                ? pixelDelta.x * dragSensitivity * (invertHorizontal ? -1f : 1f)
+                : 0f;
+
+        float verticalDelta =
+            allowVerticalRotation
+                ? pixelDelta.y * dragSensitivity * (invertVertical ? 1f : -1f)
+                : 0f;
+
+        ApplyRotation(horizontalDelta, verticalDelta);
+
+        if (useInertia)
+        {
+            Vector2 measuredVelocity =
+                new Vector2(horizontalDelta, verticalDelta) / dt;
+
+            measuredVelocity =
+                Vector2.ClampMagnitude(
+                    measuredVelocity,
+                    maximumAngularSpeed
+                );
+
+            float blend =
+                1f -
+                Mathf.Exp(
+                    -velocityResponse *
+                    dt
+                );
+
+            angularVelocity =
+                Vector2.Lerp(
+                    angularVelocity,
+                    measuredVelocity,
+                    blend
+                );
         }
         else
         {
-            if (pointerDown)
-            {
-                EndPointer(previousPointerPosition);
-            }
-
-            ApplyInertia();
+            angularVelocity = Vector2.zero;
         }
     }
 
-    private void ProcessPointer(PointerState pointer)
+    private void ApplyFreeMotion()
     {
-        if (pointer.PressedThisFrame)
-        {
-            BeginPointer(pointer);
-        }
+        float dt = Time.unscaledDeltaTime;
+        bool inertiaActive =
+            useInertia &&
+            angularVelocity.magnitude > stopSpeed;
 
-        if (pointerDown && pointer.PointerId == activePointerId && pointer.IsPressed)
+        if (inertiaActive)
         {
-            ContinuePointer(pointer);
-        }
+            ApplyRotation(
+                angularVelocity.x * dt,
+                angularVelocity.y * dt
+            );
 
-        if (pointerDown && pointer.PointerId == activePointerId && pointer.ReleasedThisFrame)
-        {
-            EndPointer(pointer.Position);
-        }
-    }
+            angularVelocity =
+                Vector2.MoveTowards(
+                    angularVelocity,
+                    Vector2.zero,
+                    deceleration * dt
+                );
 
-    private void BeginPointer(PointerState pointer)
-    {
-        if (ignoreInputOverUI && IsPointerOverUI(pointer.PointerId))
-        {
             return;
         }
 
-        pointerDown = true;
-        dragging = false;
-        activePointerId = pointer.PointerId;
-        pressPosition = pointer.Position;
-        previousPointerPosition = pointer.Position;
-        pressTime = Time.unscaledTime;
         angularVelocity = Vector2.zero;
-        LastGestureWasTap = false;
-    }
 
-    private void ContinuePointer(PointerState pointer)
-    {
-        Vector2 totalMovement = pointer.Position - pressPosition;
-
-        if (!dragging && totalMovement.sqrMagnitude >= dragThresholdPixels * dragThresholdPixels)
-        {
-            dragging = true;
-        }
-
-        Vector2 frameDelta = pointer.Position - previousPointerPosition;
-        previousPointerPosition = pointer.Position;
-
-        if (!dragging)
+        if (
+            !useAutomaticRotation ||
+            Time.unscaledTime - lastUserInputTime < automaticRotationDelay
+        )
         {
             return;
         }
 
-        float horizontalSign = invertHorizontal ? -1f : 1f;
-        float verticalSign = invertVertical ? -1f : 1f;
+        /*
+         * Constant basketball-style spin around the vertical Y axis.
+         * Negative Y produces the requested clockwise direction for
+         * the current camera-facing layout.
+         */
+        float targetSpeed = -automaticClockwiseSpeed;
+        float response =
+            1f -
+            Mathf.Exp(
+                -automaticRotationResponse *
+                dt
+            );
 
-        float yawDelta = allowHorizontalRotation
-            ? frameDelta.x * dragSensitivity * horizontalSign
-            : 0f;
+        angularVelocity.x =
+            Mathf.Lerp(
+                angularVelocity.x,
+                targetSpeed,
+                response
+            );
 
-        float pitchDelta = allowVerticalRotation
-            ? -frameDelta.y * dragSensitivity * verticalSign
-            : 0f;
-
-        ApplyRotation(pitchDelta, yawDelta);
-
-        float deltaTime = Mathf.Max(Time.unscaledDeltaTime, 0.0001f);
-        Vector2 targetVelocity = new Vector2(pitchDelta, yawDelta) / deltaTime;
-        targetVelocity = Vector2.ClampMagnitude(targetVelocity, maximumAngularSpeed);
-
-        float blend = 1f - Mathf.Exp(-velocityResponse * deltaTime);
-        angularVelocity = Vector2.Lerp(angularVelocity, targetVelocity, blend);
-    }
-
-    private void EndPointer(Vector2 releasePosition)
-    {
-        float duration = Time.unscaledTime - pressTime;
-        float movement = Vector2.Distance(pressPosition, releasePosition);
-
-        LastGestureWasTap =
-            !dragging &&
-            duration <= maximumTapDuration &&
-            movement <= tapMovementTolerance;
-
-        pointerDown = false;
-        dragging = false;
-        activePointerId = int.MinValue;
-
-        if (!useInertia)
-        {
-            angularVelocity = Vector2.zero;
-        }
-    }
-
-    private void ApplyInertia()
-    {
-        if (!useInertia || angularVelocity.sqrMagnitude <= 0f)
-        {
-            return;
-        }
-
-        float deltaTime = Mathf.Max(Time.unscaledDeltaTime, 0.0001f);
-
-        ApplyRotation(
-            angularVelocity.x * deltaTime,
-            angularVelocity.y * deltaTime
-        );
-
-        float speed = Mathf.MoveTowards(
-            angularVelocity.magnitude,
+        transform.Rotate(
             0f,
-            deceleration * deltaTime
+            targetSpeed * dt,
+            0f,
+            Space.World
         );
-
-        if (speed <= stopSpeed)
-        {
-            angularVelocity = Vector2.zero;
-            return;
-        }
-
-        angularVelocity = angularVelocity.normalized * speed;
     }
 
-    private void ApplyRotation(float pitchDelta, float yawDelta)
+    private void ApplyRotation(float horizontalDegrees, float verticalDegrees)
     {
-        if (allowVerticalRotation && !Mathf.Approximately(pitchDelta, 0f))
+        if (Mathf.Abs(horizontalDegrees) > 0.0001f)
         {
-            float requestedAngle = currentVerticalAngle + pitchDelta;
-            float appliedPitch = pitchDelta;
+            /*
+             * Spin the galaxy like a basketball on a finger:
+             * around its vertical Y axis.
+             */
+            transform.Rotate(
+                0f,
+                horizontalDegrees,
+                0f,
+                Space.World
+            );
+        }
+
+        if (Mathf.Abs(verticalDegrees) > 0.0001f)
+        {
+            float requestedVertical = verticalAngle + verticalDegrees;
 
             if (clampVerticalRotation)
             {
-                float clampedAngle = Mathf.Clamp(
-                    requestedAngle,
-                    minimumVerticalAngle,
-                    maximumVerticalAngle
-                );
-
-                appliedPitch = clampedAngle - currentVerticalAngle;
-                currentVerticalAngle = clampedAngle;
-            }
-            else
-            {
-                currentVerticalAngle = NormalizeSignedAngle(requestedAngle);
+                requestedVertical =
+                    Mathf.Clamp(
+                        requestedVertical,
+                        minimumVerticalAngle,
+                        maximumVerticalAngle
+                    );
             }
 
-            transform.Rotate(Vector3.right, appliedPitch, Space.Self);
-        }
+            float appliedVertical = requestedVertical - verticalAngle;
+            verticalAngle = requestedVertical;
 
-        if (allowHorizontalRotation && !Mathf.Approximately(yawDelta, 0f))
-        {
-            Vector3 yawAxis = transform.parent != null
-                ? transform.parent.up
-                : Vector3.up;
-
-            transform.Rotate(yawAxis, yawDelta, Space.World);
+            transform.Rotate(
+                appliedVertical,
+                0f,
+                0f,
+                Space.Self
+            );
         }
     }
 
-    private bool TryReadPointer(out PointerState pointer)
+    private static void ReadPointer(
+        out bool down,
+        out bool held,
+        out bool up,
+        out Vector2 position
+    )
     {
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
-
-            pointer = new PointerState
-            {
-                PointerId = touch.fingerId,
-                Position = touch.position,
-                IsPressed = touch.phase != TouchPhase.Ended && touch.phase != TouchPhase.Canceled,
-                PressedThisFrame = touch.phase == TouchPhase.Began,
-                ReleasedThisFrame = touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled
-            };
-
-            return true;
+            position = touch.position;
+            down = touch.phase == TouchPhase.Began;
+            held =
+                touch.phase == TouchPhase.Began ||
+                touch.phase == TouchPhase.Moved ||
+                touch.phase == TouchPhase.Stationary;
+            up =
+                touch.phase == TouchPhase.Ended ||
+                touch.phase == TouchPhase.Canceled;
+            return;
         }
 
-        bool mouseHeld = Input.GetMouseButton(0);
-        bool mouseDown = Input.GetMouseButtonDown(0);
-        bool mouseUp = Input.GetMouseButtonUp(0);
-
-        if (mouseHeld || mouseDown || mouseUp)
-        {
-            pointer = new PointerState
-            {
-                PointerId = -1,
-                Position = Input.mousePosition,
-                IsPressed = mouseHeld,
-                PressedThisFrame = mouseDown,
-                ReleasedThisFrame = mouseUp
-            };
-
-            return true;
-        }
-
-        pointer = default;
-        return false;
+        position = Input.mousePosition;
+        down = Input.GetMouseButtonDown(0);
+        held = Input.GetMouseButton(0);
+        up = Input.GetMouseButtonUp(0);
     }
 
-    private static bool IsPointerOverUI(int pointerId)
-    {
-        if (EventSystem.current == null)
-        {
-            return false;
-        }
-
-        return pointerId < 0
-            ? EventSystem.current.IsPointerOverGameObject()
-            : EventSystem.current.IsPointerOverGameObject(pointerId);
-    }
-
-    private static float NormalizeSignedAngle(float angle)
+    private static float NormalizeAngle(float angle)
     {
         angle %= 360f;
 
@@ -295,30 +350,7 @@ public sealed class GalaxyRotationController : MonoBehaviour
         {
             angle -= 360f;
         }
-        else if (angle < -180f)
-        {
-            angle += 360f;
-        }
 
         return angle;
     }
-
-    private struct PointerState
-    {
-        public int PointerId;
-        public Vector2 Position;
-        public bool IsPressed;
-        public bool PressedThisFrame;
-        public bool ReleasedThisFrame;
-    }
-
-#if UNITY_EDITOR
-    private void OnValidate()
-    {
-        maximumVerticalAngle = Mathf.Max(maximumVerticalAngle, 0f);
-        minimumVerticalAngle = Mathf.Min(minimumVerticalAngle, 0f);
-        maximumAngularSpeed = Mathf.Max(maximumAngularSpeed, 1f);
-        tapMovementTolerance = Mathf.Max(tapMovementTolerance, dragThresholdPixels);
-    }
-#endif
 }

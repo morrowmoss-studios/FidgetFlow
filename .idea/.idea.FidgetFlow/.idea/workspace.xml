@@ -6,12 +6,14 @@
   <component name="ChangeListManager">
     <list default="true" id="bff25256-b9c9-4daf-8040-961893ee88e9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FidgetFlow/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FidgetFlow/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Backgrounds/M_GalaxyBackground.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Backgrounds/M_GalaxyBackground.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_FibonacciTunnelPortalPreview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_FibonacciTunnelPortalPreview.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_KalidescopePortalPreview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_KalidescopePortalPreview.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_LavaLampPortalPreview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_LavaLampPortalPreview.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_PlasmaPortalPreview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_PlasmaPortalPreview.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_StarloomPortalPreview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_StarloomPortalPreview.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/PortalHub.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/PortalHub.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/GalaxyRotationController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/GalaxyRotationController.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -122,7 +124,7 @@
       <workItem from="1782402633607" duration="4000" />
       <workItem from="1783617427864" duration="6279000" />
       <workItem from="1783779205618" duration="117182000" />
-      <workItem from="1785437373245" duration="6837000" />
+      <workItem from="1785437373245" duration="8591000" />
     </task>
     <servers />
   </component>
