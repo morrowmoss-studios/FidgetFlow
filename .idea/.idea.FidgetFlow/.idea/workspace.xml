@@ -6,8 +6,13 @@
   <component name="ChangeListManager">
     <list default="true" id="bff25256-b9c9-4daf-8040-961893ee88e9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FidgetFlow/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FidgetFlow/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/FibonacciTunnel.shader" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/FibonacciTunnel.shader" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/Kalidescope.shader" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/Kalidescope.shader" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/LavaLamp.shader" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/LavaLamp.shader" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/Plasma.shader" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/Plasma.shader" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/Starloom.shader" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/Starloom.shader" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_LavaLampPortalPreview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_LavaLampPortalPreview.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_StarloomPortalPreview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_StarloomPortalPreview.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/PortalHub.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/PortalHub.unity" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,6 +26,7 @@
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/ModeTarget.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/Downloads/FibonacciTunnel(1).shader" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/Downloads/Kaleidoscope.shader" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/Downloads/LavaLamp(1).shader" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/Downloads/LavaLampBlobs.shader" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/Downloads/LavaLampBlobs_SingleColorSpectrum.shader" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/Downloads/PlasmaOverflowPatches_Code_and_HLSL/PlasmaOverflowPatches.shader" root0="FORCE_HIGHLIGHTING" />
@@ -113,7 +119,7 @@
       <workItem from="1782402633607" duration="4000" />
       <workItem from="1783617427864" duration="6279000" />
       <workItem from="1783779205618" duration="117182000" />
-      <workItem from="1785437373245" duration="1640000" />
+      <workItem from="1785437373245" duration="4445000" />
     </task>
     <servers />
   </component>

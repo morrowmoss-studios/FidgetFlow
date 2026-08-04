@@ -53,7 +53,7 @@ Shader "FidgetFlow/Plasma"
         LOD 100
 
         Cull Off
-        ZWrite Off
+        ZWrite On
         ZTest LEqual
 
         Blend SrcAlpha OneMinusSrcAlpha

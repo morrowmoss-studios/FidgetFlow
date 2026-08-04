@@ -30,7 +30,8 @@ Shader "FidgetFlow/FibonacciTunnel"
         }
 
         Blend SrcAlpha OneMinusSrcAlpha
-        ZWrite Off
+        ZWrite On
+        ZTest LEqual
         Cull Off
 
         Pass

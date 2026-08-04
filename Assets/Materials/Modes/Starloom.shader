@@ -68,7 +68,7 @@ Shader "FidgetFlow/Starloom"
         }
 
         Cull Off
-        ZWrite Off
+        ZWrite On
         ZTest LEqual
 
         Pass

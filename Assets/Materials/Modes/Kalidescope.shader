@@ -33,7 +33,8 @@ Shader "FidgetFlow/Kaleidoscope"
         }
 
         Blend SrcAlpha OneMinusSrcAlpha
-        ZWrite Off
+        ZWrite On
+        ZTest LEqual
         Cull Off
         LOD 100
 

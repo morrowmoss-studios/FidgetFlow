@@ -15,12 +15,24 @@ Shader "FidgetFlow/LavaLamp"
         _AudioMid ("Audio Mid", Float) = 0
         _AudioHigh ("Audio High", Float) = 0
         _AudioEnergy ("Audio Energy", Float) = 0
-    }
 
-    SubShader
-    {
-        Tags { "RenderType"="Opaque" "RenderPipeline"="UniversalPipeline" }
-        LOD 100
+        [Header(Portal Preview)]
+        [Toggle] _UsePortalMask ("Use Circular Portal Mask", Float) = 0
+        _PortalMaskRadius ("Portal Mask Radius", Range(0.1, 0.5)) = 0.49
+    }
+    
+        SubShader
+        {
+            Tags
+            {
+            "RenderType" = "Opaque"
+            "Queue" = "Geometry"
+            "RenderPipeline" = "UniversalPipeline"
+         }
+
+        Cull Off
+        ZWrite On
+        ZTest LEqual
 
         Pass
         {
@@ -42,19 +54,23 @@ Shader "FidgetFlow/LavaLamp"
                 float2 uv : TEXCOORD0;
             };
 
-            float _BlobCount;
-            float _BlobSize;
-            float _FlowSpeed;
-            float _BlendSmoothness;
-            float _Brightness;
-            float _CameraZ;
-            float _AspectRatio;
-            float _FOV;
-            float _ColorShuffleSpeed;
-            float _AudioBass;
-            float _AudioMid;
-            float _AudioHigh;
-            float _AudioEnergy;
+            CBUFFER_START(UnityPerMaterial)
+                float _BlobCount;
+                float _BlobSize;
+                float _FlowSpeed;
+                float _BlendSmoothness;
+                float _Brightness;
+                float _CameraZ;
+                float _AspectRatio;
+                float _FOV;
+                float _ColorShuffleSpeed;
+                float _AudioBass;
+                float _AudioMid;
+                float _AudioHigh;
+                float _AudioEnergy;
+                float _UsePortalMask;
+                float _PortalMaskRadius;
+            CBUFFER_END
 
             float _BlobStates[15];
             float _BlobProgress[15];
@@ -82,9 +98,6 @@ Shader "FidgetFlow/LavaLamp"
             {
                 float fi = float(i);
                 float speed = (hash(fi * 3.7) - 0.5) * 2.0 * _FlowSpeed;
-
-                // each blob pulses outward from its natural position on beat
-                // different blobs pulse at slightly different phases so it looks organic
                 float beatPulse = _AudioEnergy * 0.4 * sin(_Time.y * 8.0 + fi * 2.1);
 
                 float3 naturalPos = float3(
@@ -93,7 +106,6 @@ Shader "FidgetFlow/LavaLamp"
                     sin(t * speed * 0.6 + fi * 17.9) * 1.8
                 );
 
-                // push blob outward from center on beat
                 float3 dir = normalize(naturalPos + float3(0.001, 0.001, 0.001));
                 return naturalPos + dir * beatPulse;
             }
@@ -115,7 +127,6 @@ Shader "FidgetFlow/LavaLamp"
                     float fi = float(i);
                     float3 center = blobCenter(i, t);
 
-                    // blob size pulses with energy too
                     float sizeBoost = 1.0 + _AudioEnergy * 0.3;
                     float radius = _BlobSize * sizeBoost * (0.7 + hash(fi * 7.3) * 0.6);
 
@@ -162,6 +173,13 @@ Shader "FidgetFlow/LavaLamp"
 
             half4 frag(Varyings IN) : SV_Target
             {
+                if (_UsePortalMask > 0.5)
+                {
+                    float2 portalUV = IN.uv - 0.5;
+                    float portalDistance = length(portalUV);
+                    clip(_PortalMaskRadius - portalDistance);
+                }
+
                 float2 uv = IN.uv * 2.0 - 1.0;
                 uv.x *= _AspectRatio;
 
@@ -179,12 +197,17 @@ Shader "FidgetFlow/LavaLamp"
                     p = camPos + rayDir * depth;
                     float dist = scene(p, t);
                     depth += dist * 0.7;
+
                     if (dist < 0.002)
                     {
                         hit = true;
                         break;
                     }
-                    if (depth > 25.0) break;
+
+                    if (depth > 25.0)
+                    {
+                        break;
+                    }
                 }
 
                 if (!hit)
@@ -202,14 +225,26 @@ Shader "FidgetFlow/LavaLamp"
                 float spec = pow(saturate(dot(normal, halfVec)), 48.0);
                 float fresnel = pow(1.0 - saturate(dot(normal, viewDir)), 3.0);
 
-                // color shift speed toned way down — subtle audio influence not frantic
                 float colorShuffleSpeed = _ColorShuffleSpeed + _AudioEnergy * 0.4;
                 float rainbowT = t * colorShuffleSpeed + p.x * 0.15 + p.y * 0.1;
-                float3 col = 0.5 + 0.5 * cos(TWO_PI * (rainbowT + float3(0.0, 0.333, 0.667)));
+
+                float3 col =
+                    0.5 +
+                    0.5 *
+                    cos(
+                        TWO_PI *
+                        (
+                            rainbowT +
+                            float3(0.0, 0.333, 0.667)
+                        )
+                    );
+
                 col += fresnel * 0.4;
 
-                float3 finalColor = col * (diff * 0.8 + 0.25) + spec * 0.6;
-                // brightness boost also toned down
+                float3 finalColor =
+                    col * (diff * 0.8 + 0.25) +
+                    spec * 0.6;
+
                 finalColor *= _Brightness * (1.0 + _AudioEnergy * 0.5);
                 finalColor *= exp(-depth * 0.04);
 
