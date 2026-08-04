@@ -100,10 +100,10 @@ Material:
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _Asymmetry: 0.75
-    - _AudioBass: 0.44205543
-    - _AudioEnergy: 0.25563642
-    - _AudioHigh: 0.16787961
-    - _AudioMid: 0.22455938
+    - _AudioBass: 0.1331659
+    - _AudioEnergy: 0.11488255
+    - _AudioHigh: 0.085710436
+    - _AudioMid: 0.11855426
     - _AuraAmount: 0.75
     - _AuraSize: 0.9
     - _AuraStrength: 0.45
