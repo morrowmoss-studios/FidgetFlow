@@ -99,10 +99,10 @@ Material:
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _Asymmetry: 0.75
-    - _AudioBass: 0.022304306
-    - _AudioEnergy: 0.02458187
-    - _AudioHigh: 0.012229043
-    - _AudioMid: 0.036734514
+    - _AudioBass: 0.005799244
+    - _AudioEnergy: 0.006153217
+    - _AudioHigh: 0.0054885047
+    - _AudioMid: 0.0056860656
     - _AuraAmount: 0.75
     - _AuraSize: 0.9
     - _AuraStrength: 0.45
@@ -211,6 +211,7 @@ Material:
     - _PlanktonAmount: 1.15
     - _PlanktonBrightness: 0.85
     - _PlanktonSize: 0.85
+    - _PortalMaskRadius: 0.49
     - _PressureRippleStrength: 0.85
     - _PropulsionStrength: 0.65
     - _PulseAmount: 1.2
@@ -258,6 +259,7 @@ Material:
     - _TravelSpeed: 1.35
     - _TravelTrail: 0.62
     - _Turbulence: 0.8
+    - _UsePortalMask: 0
     - _VerticalDrift: 0.08
     - _Vignette: 0.28
     - _VolumeScale: 0.92

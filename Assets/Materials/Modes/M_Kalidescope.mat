@@ -90,10 +90,10 @@ Material:
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _AngleColorShift: 0.3
-    - _AudioBass: 0.022304306
-    - _AudioEnergy: 0.02458187
-    - _AudioHigh: 0.012229043
-    - _AudioMid: 0.036734514
+    - _AudioBass: 0.005799244
+    - _AudioEnergy: 0.006153217
+    - _AudioHigh: 0.0054885047
+    - _AudioMid: 0.0056860656
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
@@ -111,6 +111,8 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _MaskRadius: 0.995
+    - _MaskSoftness: 0.025
     - _Metallic: 0
     - _NoiseScale: 7
     - _OcclusionStrength: 1

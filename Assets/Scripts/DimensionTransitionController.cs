@@ -27,6 +27,9 @@ public class DimensionTransitionController : MonoBehaviour
     [SerializeField] private Vector3 endScale =
         new Vector3(1.45f, 1.45f, 1.45f);
 
+    [Min(1f)]
+    [SerializeField] private float selectedPortalScaleMultiplier = 1.45f;
+
     [Header("Glow Boost")]
     [SerializeField, Range(0f, 1f)]
     private float portalGlowTargetAlpha = 0.58f;
@@ -47,6 +50,9 @@ public class DimensionTransitionController : MonoBehaviour
     [Header("Destination")]
     [SerializeField] private string destinationScene = "PortalHub";
 
+    [Header("Debug")]
+    [SerializeField] private bool debugLogs = true;
+
     private static readonly int ProgressId =
         Shader.PropertyToID("_Progress");
 
@@ -59,49 +65,95 @@ public class DimensionTransitionController : MonoBehaviour
     private Color portalGlowStartColor;
     private Color lightSpillStartColor;
 
+    public bool IsTransitioning => isTransitioning;
+
     private void Awake()
     {
+        Log("AWAKE ENTERED");
+
         if (enterButton != null)
         {
             enterButton.onClick.AddListener(BeginTransition);
+            Log("Enter button listener attached");
+        }
+        else
+        {
+            Log("Enter button is NULL");
         }
 
         if (transitionCanvas == null)
         {
-            transitionCanvas = GetComponentInChildren<Canvas>(true);
+            transitionCanvas =
+                GetComponentInChildren<Canvas>(true);
+
+            Log(
+                $"Auto-found TransitionCanvas: " +
+                $"{(transitionCanvas != null ? transitionCanvas.name : "NULL")}"
+            );
         }
 
-        /*
-            Keep the persistent transition canvas above every canvas
-            created by the destination scene.
-        */
         if (transitionCanvas != null)
         {
-            transitionCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            transitionCanvas.renderMode =
+                RenderMode.ScreenSpaceOverlay;
+
             transitionCanvas.overrideSorting = true;
             transitionCanvas.sortingOrder = short.MaxValue;
+
+            Log("TransitionCanvas configured");
+        }
+        else
+        {
+            LogError("TransitionCanvas is NULL");
         }
 
-        if (rainbowVortexImage != null &&
-            rainbowVortexImage.material != null)
+        if (
+            rainbowVortexImage != null &&
+            rainbowVortexImage.material != null
+        )
         {
             runtimeMaterial =
-                new Material(rainbowVortexImage.material);
+                new Material(
+                    rainbowVortexImage.material
+                );
 
-            rainbowVortexImage.material = runtimeMaterial;
+            rainbowVortexImage.material =
+                runtimeMaterial;
 
             runtimeMaterial.SetFloat(ProgressId, 0f);
             runtimeMaterial.SetFloat(OverlayAlphaId, 0f);
+
+            Log(
+                $"Runtime material created from '{runtimeMaterial.shader.name}'"
+            );
+        }
+        else
+        {
+            LogError(
+                $"Rainbow image/material invalid | Image=" +
+                $"{(rainbowVortexImage != null ? rainbowVortexImage.name : "NULL")} | " +
+                $"Material={(rainbowVortexImage != null && rainbowVortexImage.material != null ? rainbowVortexImage.material.name : "NULL")}"
+            );
         }
 
         if (rainbowVortexOverlay != null)
         {
             rainbowVortexOverlay.SetActive(false);
+            Log("Rainbow overlay disabled at startup");
+        }
+        else
+        {
+            LogError("RainbowVortexOverlay is NULL");
         }
 
         if (portalRoot != null)
         {
             startScale = portalRoot.localScale;
+            Log($"Initial PortalRoot='{portalRoot.name}' | StartScale={startScale}");
+        }
+        else
+        {
+            Log("PortalRoot is NULL at startup | This is valid in PortalHub");
         }
 
         if (portalGlow != null)
@@ -115,10 +167,17 @@ public class DimensionTransitionController : MonoBehaviour
         }
 
         DontDestroyOnLoad(gameObject);
+
+        Log(
+            $"AWAKE COMPLETE | ActiveScene='{SceneManager.GetActiveScene().name}' | " +
+            $"Destination='{destinationScene}'"
+        );
     }
 
     private void OnDestroy()
     {
+        Log("ON DESTROY");
+
         if (enterButton != null)
         {
             enterButton.onClick.RemoveListener(BeginTransition);
@@ -132,16 +191,86 @@ public class DimensionTransitionController : MonoBehaviour
 
     public void BeginTransition()
     {
+        Log(
+            $"BeginTransition() no-arg called | Destination='{destinationScene}'"
+        );
+
+        BeginTransition(
+            destinationScene,
+            null
+        );
+    }
+
+    public void BeginTransition(
+        string destinationSceneName
+    )
+    {
+        Log(
+            $"BeginTransition(scene) called | Destination='{destinationSceneName}'"
+        );
+
+        BeginTransition(
+            destinationSceneName,
+            null
+        );
+    }
+
+    public void BeginTransition(
+        string destinationSceneName,
+        Transform animatedPortalRoot
+    )
+    {
+        Log(
+            $"BeginTransition(scene, root) ENTERED | " +
+            $"RequestedScene='{destinationSceneName}' | " +
+            $"Root={(animatedPortalRoot != null ? animatedPortalRoot.name : "NULL")} | " +
+            $"IsTransitioning={isTransitioning}"
+        );
+
         if (isTransitioning)
         {
+            Log("BeginTransition ABORTED | Already transitioning");
             return;
         }
 
+        if (!string.IsNullOrWhiteSpace(destinationSceneName))
+        {
+            destinationScene = destinationSceneName;
+            Log($"Destination updated to '{destinationScene}'");
+        }
+        else
+        {
+            Log("Destination argument was empty | Keeping inspector value");
+        }
+
+        if (animatedPortalRoot != null)
+        {
+            portalRoot = animatedPortalRoot;
+            startScale = portalRoot.localScale;
+            endScale =
+                startScale *
+                selectedPortalScaleMultiplier;
+
+            Log(
+                $"Portal root assigned | Root='{portalRoot.name}' | " +
+                $"StartScale={startScale} | EndScale={endScale}"
+            );
+        }
+        else
+        {
+            Log(
+                $"No animated root passed | ExistingRoot=" +
+                $"{(portalRoot != null ? portalRoot.name : "NULL")}"
+            );
+        }
+
+        Log("Starting PlayTransition coroutine");
         StartCoroutine(PlayTransition());
     }
 
     private IEnumerator PlayTransition()
     {
+        Log("PlayTransition COROUTINE ENTERED");
         isTransitioning = true;
 
         if (enterButton != null)
@@ -157,28 +286,46 @@ public class DimensionTransitionController : MonoBehaviour
         if (rainbowVortexOverlay != null)
         {
             rainbowVortexOverlay.SetActive(true);
+            Log("Rainbow overlay activated");
+        }
+        else
+        {
+            LogError("Cannot activate overlay | Reference is NULL");
         }
 
         if (runtimeMaterial != null)
         {
             runtimeMaterial.SetFloat(ProgressId, 0f);
             runtimeMaterial.SetFloat(OverlayAlphaId, 0f);
+            Log("Runtime material reset");
+        }
+        else
+        {
+            LogError("Runtime material is NULL");
         }
 
         float elapsed = 0f;
+        Log($"Beginning transition animation | Duration={transitionDuration:F2}");
 
         while (elapsed < transitionDuration)
         {
             elapsed += Time.unscaledDeltaTime;
 
             float normalizedTime =
-                Mathf.Clamp01(elapsed / transitionDuration);
+                Mathf.Clamp01(
+                    elapsed /
+                    transitionDuration
+                );
 
             float progressValue =
                 progressCurve.Evaluate(normalizedTime);
 
             float portalTime =
-                Mathf.InverseLerp(0f, 0.75f, normalizedTime);
+                Mathf.InverseLerp(
+                    0f,
+                    0.75f,
+                    normalizedTime
+                );
 
             float scaleValue =
                 scaleCurve.Evaluate(portalTime);
@@ -212,33 +359,31 @@ public class DimensionTransitionController : MonoBehaviour
             if (portalGlow != null)
             {
                 Color color = portalGlowStartColor;
-
                 color.a =
                     Mathf.Lerp(
                         portalGlowStartColor.a,
                         portalGlowTargetAlpha,
                         glowValue
                     );
-
                 portalGlow.color = color;
             }
 
             if (lightSpill != null)
             {
                 Color color = lightSpillStartColor;
-
                 color.a =
                     Mathf.Lerp(
                         lightSpillStartColor.a,
                         lightSpillTargetAlpha,
                         glowValue
                     );
-
                 lightSpill.color = color;
             }
 
             yield return null;
         }
+
+        Log("Transition animation loop complete");
 
         if (runtimeMaterial != null)
         {
@@ -253,12 +398,40 @@ public class DimensionTransitionController : MonoBehaviour
 
         if (holdDuration > 0f)
         {
-            yield return
-                new WaitForSecondsRealtime(holdDuration);
+            Log($"Holding tunnel for {holdDuration:F2}s");
+            yield return new WaitForSecondsRealtime(holdDuration);
+        }
+
+        Log(
+            $"Attempting LoadSceneAsync('{destinationScene}') | " +
+            $"CanStreamedLevelBeLoaded={Application.CanStreamedLevelBeLoaded(destinationScene)}"
+        );
+
+        if (!Application.CanStreamedLevelBeLoaded(destinationScene))
+        {
+            LogError(
+                $"Scene '{destinationScene}' is not available to load. " +
+                $"Check Build Profiles / Scene List."
+            );
+
+            isTransitioning = false;
+            yield break;
         }
 
         AsyncOperation loadOperation =
             SceneManager.LoadSceneAsync(destinationScene);
+
+        if (loadOperation == null)
+        {
+            LogError(
+                $"LoadSceneAsync returned NULL for '{destinationScene}'"
+            );
+
+            isTransitioning = false;
+            yield break;
+        }
+
+        Log("LoadSceneAsync returned a valid operation");
 
         loadOperation.allowSceneActivation = false;
 
@@ -274,15 +447,20 @@ public class DimensionTransitionController : MonoBehaviour
             yield return null;
         }
 
+        Log(
+            $"Scene ready | Progress={loadOperation.progress:F2} | Activating"
+        );
+
         loadOperation.allowSceneActivation = true;
 
-        yield return
-            new WaitUntil(() => loadOperation.isDone);
+        yield return new WaitUntil(
+            () => loadOperation.isDone
+        );
 
-        /*
-            Allow the destination scene to render underneath the
-            persistent tunnel before beginning the matching fade-out.
-        */
+        Log(
+            $"Scene load completed | ActiveScene='{SceneManager.GetActiveScene().name}'"
+        );
+
         yield return null;
         yield return new WaitForEndOfFrame();
 
@@ -294,28 +472,32 @@ public class DimensionTransitionController : MonoBehaviour
                 );
         }
 
-        /*
-            Run the exact same alpha timing backwards.
+        float exitDuration =
+            transitionDuration *
+            0.60f;
 
-            The entry alpha grows between 15% and 75% of the main
-            transition, so the matching exit lasts that same 60%
-            of transitionDuration.
-        */
-        float exitDuration = transitionDuration * 0.60f;
         float fadeTimer = 0f;
+
+        Log($"Beginning tunnel fade-out | Duration={exitDuration:F2}");
 
         while (fadeTimer < exitDuration)
         {
             fadeTimer += Time.unscaledDeltaTime;
 
             float normalizedFade =
-                Mathf.Clamp01(fadeTimer / exitDuration);
+                Mathf.Clamp01(
+                    fadeTimer /
+                    exitDuration
+                );
 
             if (runtimeMaterial != null)
             {
                 runtimeMaterial.SetFloat(
                     OverlayAlphaId,
-                    EvaluateTunnelAlpha(1f - normalizedFade)
+                    EvaluateTunnelAlpha(
+                        1f -
+                        normalizedFade
+                    )
                 );
             }
 
@@ -327,6 +509,7 @@ public class DimensionTransitionController : MonoBehaviour
             runtimeMaterial.SetFloat(OverlayAlphaId, 0f);
         }
 
+        Log("Transition complete | Destroying controller object");
         Destroy(gameObject);
     }
 
@@ -340,6 +523,25 @@ public class DimensionTransitionController : MonoBehaviour
                 0.75f,
                 normalizedTime
             )
+        );
+    }
+
+    private void Log(string message)
+    {
+        if (debugLogs)
+        {
+            Debug.Log(
+                $"[TRANSITION DEBUG] {name} | {message}",
+                this
+            );
+        }
+    }
+
+    private void LogError(string message)
+    {
+        Debug.LogError(
+            $"[TRANSITION DEBUG] {name} | {message}",
+            this
         );
     }
 }

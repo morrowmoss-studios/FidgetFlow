@@ -86,15 +86,15 @@ Material:
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _AspectRatio: 1.4
-    - _AudioBass: 0.022304306
-    - _AudioEnergy: 0.02458187
-    - _AudioHigh: 0.012229043
-    - _AudioMid: 0.036734514
+    - _AudioBass: 0.005799244
+    - _AudioEnergy: 0.006153217
+    - _AudioHigh: 0.0054885047
+    - _AudioMid: 0.0056860656
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BlendSmoothness: 0.8
     - _BlobCount: 15
-    - _BlobSize: 0.75
+    - _BlobSize: 0.8822079
     - _Brightness: 2
     - _BumpScale: 1
     - _CameraZ: 6
@@ -118,6 +118,7 @@ Material:
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
+    - _PortalMaskRadius: 0.49
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _Smoothness: 0.5
@@ -127,6 +128,7 @@ Material:
     - _SrcBlendAlpha: 1
     - _Surface: 0
     - _TouchedBlobIndex: 7
+    - _UsePortalMask: 0
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
