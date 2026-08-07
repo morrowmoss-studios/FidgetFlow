@@ -4,11 +4,11 @@ using UnityEngine.EventSystems;
 [DisallowMultipleComponent]
 public sealed class PortalPointerRaycaster : MonoBehaviour
 {
-    [Header("Raycast")]
+    [Header("Required")]
     [SerializeField] private Camera targetCamera;
 
-    [Tooltip("Leave as Everything unless you create a dedicated Portal layer.")]
-    [SerializeField] private LayerMask portalLayers = ~0;
+    [Tooltip("Set this to only the PortalInteractable layer.")]
+    [SerializeField] private LayerMask portalLayer;
 
     [Min(0.1f)]
     [SerializeField] private float maximumRayDistance = 1000f;
@@ -22,15 +22,12 @@ public sealed class PortalPointerRaycaster : MonoBehaviour
 
     [SerializeField] private bool ignoreInputOverUI = true;
 
-    [Header("Debug")]
-    [SerializeField] private bool debugLogs = true;
-
     private Vector2 pointerDownPosition;
     private float pointerDownTime;
     private bool pointerHeld;
     private bool pointerStartedOverUI;
 
-    private readonly RaycastHit[] hits = new RaycastHit[64];
+    private readonly RaycastHit[] hits = new RaycastHit[32];
 
     private void Awake()
     {
@@ -43,20 +40,15 @@ public sealed class PortalPointerRaycaster : MonoBehaviour
         {
             targetCamera = Camera.main;
         }
-
-        Log(
-            $"AWAKE | Camera={(targetCamera != null ? targetCamera.name : "NULL")} | " +
-            $"LayerMask={portalLayers.value}"
-        );
     }
 
     private void Update()
     {
         ReadPointer(
             out bool down,
-            out bool held,
             out bool up,
-            out Vector2 position
+            out Vector2 position,
+            out int pointerId
         );
 
         if (down)
@@ -68,91 +60,59 @@ public sealed class PortalPointerRaycaster : MonoBehaviour
             pointerStartedOverUI =
                 ignoreInputOverUI &&
                 EventSystem.current != null &&
-                EventSystem.current.IsPointerOverGameObject(
-                    Input.touchCount > 0
-                        ? Input.GetTouch(0).fingerId
-                        : -1
-                );
-
-            Log(
-                $"POINTER DOWN | Position={position} | OverUI={pointerStartedOverUI}"
-            );
+                EventSystem.current.IsPointerOverGameObject(pointerId);
         }
 
-        if (up && pointerHeld)
+        if (!up || !pointerHeld)
         {
-            pointerHeld = false;
+            return;
+        }
 
-            float movement =
-                Vector2.Distance(
-                    pointerDownPosition,
-                    position
-                );
+        pointerHeld = false;
 
-            float duration =
-                Time.unscaledTime -
-                pointerDownTime;
-
-            Log(
-                $"POINTER UP | Movement={movement:F2}/{maximumClickMovementPixels:F2} | " +
-                $"Duration={duration:F3}/{maximumClickDuration:F3}"
+        float movement =
+            Vector2.Distance(
+                pointerDownPosition,
+                position
             );
 
-            if (pointerStartedOverUI)
-            {
-                Log("CLICK REJECTED | Started over UI");
-                return;
-            }
+        float duration =
+            Time.unscaledTime -
+            pointerDownTime;
 
-            if (movement > maximumClickMovementPixels)
-            {
-                Log("CLICK REJECTED | Movement exceeded tolerance");
-                return;
-            }
-
-            if (duration > maximumClickDuration)
-            {
-                Log("CLICK REJECTED | Duration exceeded tolerance");
-                return;
-            }
-
-            TryOpenPortal(position);
+        if (
+            pointerStartedOverUI ||
+            movement > maximumClickMovementPixels ||
+            duration > maximumClickDuration
+        )
+        {
+            return;
         }
+
+        OpenPortalAt(position);
     }
 
-    private void TryOpenPortal(Vector2 screenPosition)
+    private void OpenPortalAt(Vector2 screenPosition)
     {
         if (targetCamera == null)
         {
-            LogError("Cannot raycast because Target Camera is NULL");
             return;
         }
 
         Ray ray =
-            targetCamera.ScreenPointToRay(
-                screenPosition
-            );
+            targetCamera.ScreenPointToRay(screenPosition);
 
         int hitCount =
             Physics.RaycastNonAlloc(
                 ray,
                 hits,
                 maximumRayDistance,
-                portalLayers,
+                portalLayer,
                 QueryTriggerInteraction.Collide
             );
 
-        Log($"RAYCAST | HitCount={hitCount}");
-
-        if (hitCount <= 0)
-        {
-            Log("RAYCAST MISS | No colliders hit");
-            return;
-        }
-
         PortalController closestPortal = null;
         float closestDistance = float.PositiveInfinity;
-        string hitSummary = string.Empty;
 
         for (int i = 0; i < hitCount; i++)
         {
@@ -164,14 +124,17 @@ public sealed class PortalPointerRaycaster : MonoBehaviour
             }
 
             PortalController portal =
-                hit.collider.GetComponentInParent<PortalController>();
+                hit.collider.GetComponent<PortalController>();
 
-            hitSummary +=
-                $"[{hit.collider.name}, distance={hit.distance:F2}, " +
-                $"portal={(portal != null ? portal.name : "none")}] ";
+            if (portal == null)
+            {
+                portal =
+                    hit.collider.GetComponentInParent<PortalController>();
+            }
 
             if (
                 portal != null &&
+                !portal.IsOpening &&
                 hit.distance < closestDistance
             )
             {
@@ -180,28 +143,17 @@ public sealed class PortalPointerRaycaster : MonoBehaviour
             }
         }
 
-        Log($"RAYCAST HITS | {hitSummary}");
-
-        if (closestPortal == null)
+        if (closestPortal != null)
         {
-            Log(
-                "NO PORTAL FOUND | Ray hit colliders, but none had a PortalController in their parent chain"
-            );
-            return;
+            closestPortal.OpenPortal();
         }
-
-        Log(
-            $"PORTAL FOUND | '{closestPortal.name}' at distance {closestDistance:F2} | Calling OpenPortal()"
-        );
-
-        closestPortal.OpenPortal();
     }
 
     private static void ReadPointer(
         out bool down,
-        out bool held,
         out bool up,
-        out Vector2 position
+        out Vector2 position,
+        out int pointerId
     )
     {
         if (Input.touchCount > 0)
@@ -209,12 +161,8 @@ public sealed class PortalPointerRaycaster : MonoBehaviour
             Touch touch = Input.GetTouch(0);
 
             position = touch.position;
+            pointerId = touch.fingerId;
             down = touch.phase == TouchPhase.Began;
-
-            held =
-                touch.phase == TouchPhase.Began ||
-                touch.phase == TouchPhase.Moved ||
-                touch.phase == TouchPhase.Stationary;
 
             up =
                 touch.phase == TouchPhase.Ended ||
@@ -224,27 +172,8 @@ public sealed class PortalPointerRaycaster : MonoBehaviour
         }
 
         position = Input.mousePosition;
+        pointerId = -1;
         down = Input.GetMouseButtonDown(0);
-        held = Input.GetMouseButton(0);
         up = Input.GetMouseButtonUp(0);
-    }
-
-    private void Log(string message)
-    {
-        if (debugLogs)
-        {
-            Debug.Log(
-                $"[PORTAL RAYCAST DEBUG] {name} | {message}",
-                this
-            );
-        }
-    }
-
-    private void LogError(string message)
-    {
-        Debug.LogError(
-            $"[PORTAL RAYCAST DEBUG] {name} | {message}",
-            this
-        );
     }
 }
