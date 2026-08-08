@@ -24,9 +24,9 @@ Shader "FidgetFlow/Plasma"
         _Contrast ("Contrast", Range(0.5, 3.0)) = 1.3
         _Saturation ("Color Saturation", Range(0.0, 2.0)) = 1.15
 
-        [Header(Portal Mask)]
-        _PortalRadius ("Portal Radius", Range(0.5, 1.1)) = 1.0
-        _PortalEdgeSoftness ("Portal Edge Softness", Range(0.001, 0.15)) = 0.025
+        [Header(Portal Preview)]
+        [Toggle] _UsePortalMask ("Use Circular Portal Mask", Float) = 0
+        _PortalMaskRadius ("Portal Mask Radius", Range(0.1, 0.5)) = 0.49
 
         [Header(Color)]
         _ColorShift ("Color Shift", Range(0.0, 1.0)) = 0.0
@@ -106,8 +106,8 @@ Shader "FidgetFlow/Plasma"
                 float _Contrast;
                 float _Saturation;
 
-                float _PortalRadius;
-                float _PortalEdgeSoftness;
+                float _UsePortalMask;
+                float _PortalMaskRadius;
 
                 float _ColorShift;
                 float _ColorSpeed;
@@ -303,21 +303,15 @@ Shader "FidgetFlow/Plasma"
                     length(uv);
 
                 /*
-                    CIRCULAR PORTAL MASK
-
-                    Outside the portal becomes transparent.
+                    Circular clipping is only used by the portal-preview
+                    material. The gameplay material leaves it disabled.
                 */
-
-                float portalAlpha =
-                    1.0 -
-                    smoothstep(
-                        _PortalRadius -
-                        _PortalEdgeSoftness,
-                        _PortalRadius,
-                        radius
-                    );
-
-                clip(portalAlpha - 0.001);
+                if (_UsePortalMask > 0.5)
+                {
+                    float2 portalUV = input.uv - 0.5;
+                    float portalDistance = length(portalUV);
+                    clip(_PortalMaskRadius - portalDistance);
+                }
 
                 /*
                     AUDIO BOOSTS
@@ -864,7 +858,7 @@ Shader "FidgetFlow/Plasma"
 
                 return half4(
                     color,
-                    portalAlpha
+                    1.0
                 );
             }
 

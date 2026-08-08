@@ -27,10 +27,10 @@ Material:
     m_Floats:
     - _ArmCount: 3
     - _ArmWidth: 0.6
-    - _AudioBass: 0.055021096
-    - _AudioEnergy: 0.04054177
-    - _AudioHigh: 0.007507428
-    - _AudioMid: 0.03846131
+    - _AudioBass: 0.067726724
+    - _AudioEnergy: 0.046960644
+    - _AudioHigh: 0.028125014
+    - _AudioMid: 0.027771935
     - _Brightness: 2
     - _ColorSpeed: 0.3
     - _ColorSpread: 4
@@ -51,11 +51,13 @@ Material:
     - _MaskRadius: 0.995
     - _MaskSoftness: 0.025
     - _Mode: 0
+    - _PortalMaskRadius: 0.49
     - _RotationSpeed: 0.25
     - _TargetX: -0.7269
     - _TargetY: 0.1889
     - _Tightness: 6
     - _Twist: 2.5
+    - _UsePortalMask: 0
     - _ZoomDepth: 10
     - _ZoomSpeed: 0.3
     m_Colors: []

@@ -90,10 +90,10 @@ Material:
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _AngleColorShift: 0.3
-    - _AudioBass: 0.055021096
-    - _AudioEnergy: 0.04054177
-    - _AudioHigh: 0.007507428
-    - _AudioMid: 0.03846131
+    - _AudioBass: 0.067726724
+    - _AudioEnergy: 0.046960644
+    - _AudioHigh: 0.028125014
+    - _AudioMid: 0.027771935
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
@@ -118,6 +118,7 @@ Material:
     - _OcclusionStrength: 1
     - _Octaves: 4
     - _Parallax: 0.005
+    - _PortalMaskRadius: 0.49
     - _QueueOffset: 0
     - _RampContrast: 1.159
     - _RampOffset: 0
@@ -130,6 +131,7 @@ Material:
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
+    - _UsePortalMask: 0
     - _WarpStrength: 1.8
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1

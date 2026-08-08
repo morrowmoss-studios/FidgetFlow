@@ -11,8 +11,9 @@ Shader "FidgetFlow/FibonacciTunnel"
         _GoldenSpiral ("Golden Spiral Mix", Range(0,1)) = 0.5
         _Layers ("Layers", Float) = 4.0
 
-        _MaskRadius ("Circular Mask Radius", Range(0.5, 1.1)) = 0.995
-        _MaskSoftness ("Circular Mask Softness", Range(0.001, 0.15)) = 0.025
+        [Header(Portal Preview)]
+        [Toggle] _UsePortalMask ("Use Circular Portal Mask", Float) = 0
+        _PortalMaskRadius ("Portal Mask Radius", Range(0.1, 0.5)) = 0.49
 
         _AudioBass ("Audio Bass", Float) = 0
         _AudioMid ("Audio Mid", Float) = 0
@@ -66,8 +67,8 @@ Shader "FidgetFlow/FibonacciTunnel"
                 float _GoldenSpiral;
                 float _Layers;
 
-                float _MaskRadius;
-                float _MaskSoftness;
+                float _UsePortalMask;
+                float _PortalMaskRadius;
 
                 float _AudioBass;
                 float _AudioMid;
@@ -336,34 +337,21 @@ Shader "FidgetFlow/FibonacciTunnel"
                     _Time.y;
 
                 /*
-                    Use the untouched centered UV for the circular cutout.
-                    This removes the visible square corners without changing
-                    the tunnel's existing aspect correction.
+                    Portal previews use a circular cutout.
+                    Gameplay materials leave this disabled so the mode fills
+                    the entire quad/screen.
                 */
-                float2 maskUV =
+                if (_UsePortalMask > 0.5)
+                {
+                    float2 portalUV = IN.uv - 0.5;
+                    float portalDistance = length(portalUV);
+                    clip(_PortalMaskRadius - portalDistance);
+                }
+
+                float2 uv =
                     IN.uv *
                     2.0 -
                     1.0;
-
-                float maskDistance =
-                    length(maskUV);
-
-                float circleMask =
-                    1.0 -
-                    smoothstep(
-                        _MaskRadius -
-                        _MaskSoftness,
-                        _MaskRadius,
-                        maskDistance
-                    );
-
-                clip(
-                    circleMask -
-                    0.001
-                );
-
-                float2 uv =
-                    maskUV;
 
                 /*
                     Keep the original tunnel correction exactly as it was.
@@ -483,7 +471,7 @@ Shader "FidgetFlow/FibonacciTunnel"
                     saturate(
                         totalColor
                     ),
-                    circleMask
+                    1.0
                 );
             }
 

@@ -14,8 +14,9 @@ Shader "FidgetFlow/Kaleidoscope"
         _RampContrast ("Color Smoothness", Range(0.1, 3)) = 1.0
         _AngleColorShift ("Angle Color Shift", Float) = 0.3
 
-        _MaskRadius ("Circular Mask Radius", Range(0.5, 1.1)) = 0.995
-        _MaskSoftness ("Circular Mask Softness", Range(0.001, 0.15)) = 0.025
+        [Header(Portal Preview)]
+        [Toggle] _UsePortalMask ("Use Circular Portal Mask", Float) = 0
+        _PortalMaskRadius ("Portal Mask Radius", Range(0.1, 0.5)) = 0.49
 
         _AudioBass ("Audio Bass", Float) = 0
         _AudioMid ("Audio Mid", Float) = 0
@@ -74,8 +75,8 @@ Shader "FidgetFlow/Kaleidoscope"
                 float _RampContrast;
                 float _AngleColorShift;
 
-                float _MaskRadius;
-                float _MaskSoftness;
+                float _UsePortalMask;
+                float _PortalMaskRadius;
 
                 float _AudioBass;
                 float _AudioMid;
@@ -308,27 +309,16 @@ Shader "FidgetFlow/Kaleidoscope"
 
             half4 frag(Varyings IN) : SV_Target
             {
-                float2 maskUV =
-                    IN.uv *
-                    2.0 -
-                    1.0;
-
-                float maskDistance =
-                    length(maskUV);
-
-                float circleMask =
-                    1.0 -
-                    smoothstep(
-                        _MaskRadius -
-                        _MaskSoftness,
-                        _MaskRadius,
-                        maskDistance
-                    );
-
-                clip(
-                    circleMask -
-                    0.001
-                );
+                /*
+                    Circular masking is only for the small portal-preview
+                    material. Gameplay leaves it disabled.
+                */
+                if (_UsePortalMask > 0.5)
+                {
+                    float2 portalUV = IN.uv - 0.5;
+                    float portalDistance = length(portalUV);
+                    clip(_PortalMaskRadius - portalDistance);
+                }
 
                 float iTime =
                     _Time.y;
@@ -472,7 +462,7 @@ Shader "FidgetFlow/Kaleidoscope"
                     saturate(
                         rampColor.rgb
                     ),
-                    circleMask
+                    1.0
                 );
             }
 
