@@ -6,23 +6,15 @@
   <component name="ChangeListManager">
     <list default="true" id="bff25256-b9c9-4daf-8040-961893ee88e9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FidgetFlow/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FidgetFlow/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/FibonacciTunnel.shader" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/FibonacciTunnel.shader" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/Kalidescope.shader" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/Kalidescope.shader" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_FibonacciTunnel.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_FibonacciTunnel.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_Kalidescope.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_Kalidescope.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_LavaLamp.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_LavaLamp.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_Plasma.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_Plasma.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_Starloom.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_Starloom.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_UrchinZoom.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_UrchinZoom.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/Plasma.shader" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/Plasma.shader" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_FibonacciTunnelPortalPreview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_FibonacciTunnelPortalPreview.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_KalidescopePortalPreview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_KalidescopePortalPreview.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_LavaLampPortalPreview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_LavaLampPortalPreview.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_PlasmaPortalPreview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_PlasmaPortalPreview.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_StarloomPortalPreview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_StarloomPortalPreview.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/Modes.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Modes.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ModeManagerController.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ModeManagerController.cs.meta" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,7 +133,7 @@
       <workItem from="1782402633607" duration="4000" />
       <workItem from="1783617427864" duration="6279000" />
       <workItem from="1783779205618" duration="117182000" />
-      <workItem from="1785437373245" duration="16271000" />
+      <workItem from="1785437373245" duration="19630000" />
     </task>
     <servers />
   </component>
