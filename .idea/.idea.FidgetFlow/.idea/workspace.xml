@@ -6,13 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="bff25256-b9c9-4daf-8040-961893ee88e9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FidgetFlow/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FidgetFlow/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_FibonacciTunnel.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_FibonacciTunnel.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_Kalidescope.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_Kalidescope.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_LavaLamp.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_LavaLamp.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_Plasma.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_Plasma.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_Starloom.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_Starloom.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_UrchinZoom.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_UrchinZoom.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Modes.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Modes.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/ModeMenuController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ModeMenuController.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -132,7 +125,7 @@
       <workItem from="1782402633607" duration="4000" />
       <workItem from="1783617427864" duration="6279000" />
       <workItem from="1783779205618" duration="117182000" />
-      <workItem from="1785437373245" duration="24606000" />
+      <workItem from="1785437373245" duration="25545000" />
     </task>
     <servers />
   </component>

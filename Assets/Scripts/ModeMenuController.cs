@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ModeMenuController : MonoBehaviour
 {
@@ -120,5 +121,10 @@ public class ModeMenuController : MonoBehaviour
 
         drawerRoot.anchoredPosition = target;
         moveCoroutine = null;
+    }
+    
+    public void GoBackToPortalHub()
+    {
+        SceneManager.LoadScene("PortalHub");
     }
 }
