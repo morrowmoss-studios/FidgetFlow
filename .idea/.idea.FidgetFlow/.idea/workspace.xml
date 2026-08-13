@@ -13,8 +13,7 @@
       <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_Starloom.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_Starloom.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_UrchinZoom.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_UrchinZoom.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/Modes.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Modes.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ModeManagerController.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ModeManagerController.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ModeMenuController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ModeMenuController.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -133,7 +132,7 @@
       <workItem from="1782402633607" duration="4000" />
       <workItem from="1783617427864" duration="6279000" />
       <workItem from="1783779205618" duration="117182000" />
-      <workItem from="1785437373245" duration="19630000" />
+      <workItem from="1785437373245" duration="24606000" />
     </task>
     <servers />
   </component>

@@ -4,100 +4,95 @@ using UnityEngine;
 public class ModeMenuController : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private RectTransform dropMenu;
+    [SerializeField] private RectTransform drawerRoot;
 
-    [Header("Drawer Travel")]
-    [Tooltip("How far upward the entire drawer moves when closed.")]
-    [SerializeField] private float closedOffset = 100f;
+    [Header("Drawer Positions")]
+    [SerializeField] private Vector2 closedPosition = new Vector2(0f, 200f);
+    [SerializeField] private Vector2 openPosition = new Vector2(0f, -2f);
 
     [Header("Animation")]
-    [SerializeField] private float slideDuration = 0.3f;
+    [SerializeField] private float slideDuration = 0.25f;
 
-    private Vector2 openPosition;
-    private Vector2 closedPosition;
-
-    private bool isOpen;
-    private Coroutine slideCoroutine;
+    private bool isOpen = false;
+    private Coroutine moveCoroutine;
 
     private void Start()
     {
-        if (dropMenu == null)
-        {
-            Debug.LogError(
-                "[ModeMenuController] DropMenu is not assigned.",
-                this
-            );
+        isOpen = false;
 
+        if (drawerRoot == null)
+        {
+            Debug.LogError("[ModeMenuController] DrawerRoot is not assigned.", this);
             return;
         }
 
-        // Wherever DropMenu is positioned in the editor
-        // is considered the fully OPEN position.
-        openPosition = dropMenu.anchoredPosition;
-
-        CalculateClosedPosition();
-
-        // Start closed.
-        dropMenu.anchoredPosition = closedPosition;
-        isOpen = false;
+        StartCoroutine(ForceClosedAfterLayout());
     }
 
-    private void CalculateClosedPosition()
+    private IEnumerator ForceClosedAfterLayout()
     {
-        // Positive Y moves a top-anchored UI object upward.
-        closedPosition =
-            openPosition +
-            new Vector2(0f, closedOffset);
+        // Let Unity finish rebuilding/layouting the UI first.
+        yield return null;
+        yield return new WaitForEndOfFrame();
+
+        drawerRoot.anchoredPosition = closedPosition;
+        isOpen = false;
+
+        Debug.Log(
+            $"[ModeMenuController] Forced CLOSED at {drawerRoot.anchoredPosition}"
+        );
     }
 
     public void ToggleMenu()
     {
-        if (dropMenu == null)
+        if (drawerRoot == null)
             return;
 
         isOpen = !isOpen;
 
-        StartSlide(
+        Vector2 target =
             isOpen
                 ? openPosition
-                : closedPosition
-        );
+                : closedPosition;
+
+        MoveDrawer(target);
     }
 
     public void OpenMenu()
     {
-        if (dropMenu == null || isOpen)
+        if (drawerRoot == null || isOpen)
             return;
 
         isOpen = true;
-        StartSlide(openPosition);
+        MoveDrawer(openPosition);
     }
 
     public void CloseMenu()
     {
-        if (dropMenu == null || !isOpen)
+        if (drawerRoot == null || !isOpen)
             return;
 
         isOpen = false;
-        StartSlide(closedPosition);
+        MoveDrawer(closedPosition);
     }
 
-    private void StartSlide(Vector2 target)
+    private void MoveDrawer(Vector2 target)
     {
-        if (slideCoroutine != null)
+        if (moveCoroutine != null)
         {
-            StopCoroutine(slideCoroutine);
+            StopCoroutine(moveCoroutine);
         }
 
-        slideCoroutine =
+        moveCoroutine =
             StartCoroutine(
-                SlideMenu(target)
+                AnimateDrawer(target)
             );
     }
 
-    private IEnumerator SlideMenu(Vector2 target)
+    private IEnumerator AnimateDrawer(Vector2 target)
     {
-        Vector2 start = dropMenu.anchoredPosition;
+        Vector2 start =
+            drawerRoot.anchoredPosition;
 
         float elapsed = 0f;
 
@@ -110,10 +105,10 @@ public class ModeMenuController : MonoBehaviour
                     elapsed / slideDuration
                 );
 
-            // Smooth ease in / ease out.
+            // Smooth ease in/out.
             t = t * t * (3f - 2f * t);
 
-            dropMenu.anchoredPosition =
+            drawerRoot.anchoredPosition =
                 Vector2.Lerp(
                     start,
                     target,
@@ -123,7 +118,7 @@ public class ModeMenuController : MonoBehaviour
             yield return null;
         }
 
-        dropMenu.anchoredPosition = target;
-        slideCoroutine = null;
+        drawerRoot.anchoredPosition = target;
+        moveCoroutine = null;
     }
 }
