@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 [DisallowMultipleComponent]
 public sealed class GalaxyRotationController : MonoBehaviour
@@ -83,8 +84,11 @@ public sealed class GalaxyRotationController : MonoBehaviour
 
     private void Awake()
     {
-        Vector3 euler = transform.localEulerAngles;
-        verticalAngle = NormalizeAngle(euler.x);
+        Vector3 euler =
+            transform.localEulerAngles;
+
+        verticalAngle =
+            NormalizeAngle(euler.x);
     }
 
     private void Update()
@@ -99,54 +103,88 @@ public sealed class GalaxyRotationController : MonoBehaviour
 
     private void HandlePointerInput()
     {
-        bool down;
-        bool held;
-        bool up;
-        Vector2 pointerPosition;
-
-        ReadPointer(out down, out held, out up, out pointerPosition);
+        if (!ReadPointer(
+                out bool down,
+                out bool held,
+                out bool up,
+                out Vector2 pointerPosition))
+        {
+            return;
+        }
 
         if (down)
         {
             pointerHeld = true;
             isDragging = false;
-            pointerDownPosition = pointerPosition;
-            lastPointerPosition = pointerPosition;
-            pointerDownTime = Time.unscaledTime;
+
+            pointerDownPosition =
+                pointerPosition;
+
+            lastPointerPosition =
+                pointerPosition;
+
+            pointerDownTime =
+                Time.unscaledTime;
+
             pointerStartedOverUI =
                 ignoreInputOverUI &&
                 EventSystem.current != null &&
-                EventSystem.current.IsPointerOverGameObject();
+                EventSystem.current.IsPointerOverGameObject(-1);
 
-            angularVelocity = Vector2.zero;
-            lastUserInputTime = Time.unscaledTime;
+            angularVelocity =
+                Vector2.zero;
+
+            lastUserInputTime =
+                Time.unscaledTime;
         }
 
-        if (held && pointerHeld && !pointerStartedOverUI)
+        if (
+            held &&
+            pointerHeld &&
+            !pointerStartedOverUI
+        )
         {
-            Vector2 totalMovement = pointerPosition - pointerDownPosition;
+            Vector2 totalMovement =
+                pointerPosition -
+                pointerDownPosition;
 
-            if (!isDragging && totalMovement.magnitude >= dragThresholdPixels)
+            if (
+                !isDragging &&
+                totalMovement.magnitude >= dragThresholdPixels
+            )
             {
                 isDragging = true;
             }
 
             if (isDragging)
             {
-                Vector2 delta = pointerPosition - lastPointerPosition;
+                Vector2 delta =
+                    pointerPosition -
+                    lastPointerPosition;
+
                 ApplyDrag(delta);
-                lastUserInputTime = Time.unscaledTime;
+
+                lastUserInputTime =
+                    Time.unscaledTime;
             }
 
-            lastPointerPosition = pointerPosition;
+            lastPointerPosition =
+                pointerPosition;
         }
 
         if (up && pointerHeld)
         {
             pointerHeld = false;
 
-            float heldDuration = Time.unscaledTime - pointerDownTime;
-            float movement = (pointerPosition - pointerDownPosition).magnitude;
+            float heldDuration =
+                Time.unscaledTime -
+                pointerDownTime;
+
+            float movement =
+                (
+                    pointerPosition -
+                    pointerDownPosition
+                ).magnitude;
 
             bool wasTap =
                 heldDuration <= maximumTapDuration &&
@@ -154,35 +192,52 @@ public sealed class GalaxyRotationController : MonoBehaviour
 
             if (wasTap)
             {
-                angularVelocity = Vector2.zero;
+                angularVelocity =
+                    Vector2.zero;
             }
 
             isDragging = false;
             pointerStartedOverUI = false;
-            lastUserInputTime = Time.unscaledTime;
+
+            lastUserInputTime =
+                Time.unscaledTime;
         }
     }
 
     private void ApplyDrag(Vector2 pixelDelta)
     {
-        float dt = Mathf.Max(Time.unscaledDeltaTime, 0.0001f);
+        float dt =
+            Mathf.Max(
+                Time.unscaledDeltaTime,
+                0.0001f
+            );
 
         float horizontalDelta =
             allowHorizontalRotation
-                ? pixelDelta.x * dragSensitivity * (invertHorizontal ? -1f : 1f)
+                ? pixelDelta.x *
+                  dragSensitivity *
+                  (invertHorizontal ? -1f : 1f)
                 : 0f;
 
         float verticalDelta =
             allowVerticalRotation
-                ? pixelDelta.y * dragSensitivity * (invertVertical ? 1f : -1f)
+                ? pixelDelta.y *
+                  dragSensitivity *
+                  (invertVertical ? 1f : -1f)
                 : 0f;
 
-        ApplyRotation(horizontalDelta, verticalDelta);
+        ApplyRotation(
+            horizontalDelta,
+            verticalDelta
+        );
 
         if (useInertia)
         {
             Vector2 measuredVelocity =
-                new Vector2(horizontalDelta, verticalDelta) / dt;
+                new Vector2(
+                    horizontalDelta,
+                    verticalDelta
+                ) / dt;
 
             measuredVelocity =
                 Vector2.ClampMagnitude(
@@ -206,13 +261,16 @@ public sealed class GalaxyRotationController : MonoBehaviour
         }
         else
         {
-            angularVelocity = Vector2.zero;
+            angularVelocity =
+                Vector2.zero;
         }
     }
 
     private void ApplyFreeMotion()
     {
-        float dt = Time.unscaledDeltaTime;
+        float dt =
+            Time.unscaledDeltaTime;
+
         bool inertiaActive =
             useInertia &&
             angularVelocity.magnitude > stopSpeed;
@@ -234,22 +292,22 @@ public sealed class GalaxyRotationController : MonoBehaviour
             return;
         }
 
-        angularVelocity = Vector2.zero;
+        angularVelocity =
+            Vector2.zero;
 
         if (
             !useAutomaticRotation ||
-            Time.unscaledTime - lastUserInputTime < automaticRotationDelay
+            Time.unscaledTime -
+            lastUserInputTime <
+            automaticRotationDelay
         )
         {
             return;
         }
 
-        /*
-         * Constant basketball-style spin around the vertical Y axis.
-         * Negative Y produces the requested clockwise direction for
-         * the current camera-facing layout.
-         */
-        float targetSpeed = -automaticClockwiseSpeed;
+        float targetSpeed =
+            -automaticClockwiseSpeed;
+
         float response =
             1f -
             Mathf.Exp(
@@ -272,14 +330,16 @@ public sealed class GalaxyRotationController : MonoBehaviour
         );
     }
 
-    private void ApplyRotation(float horizontalDegrees, float verticalDegrees)
+    private void ApplyRotation(
+        float horizontalDegrees,
+        float verticalDegrees
+    )
     {
-        if (Mathf.Abs(horizontalDegrees) > 0.0001f)
+        if (
+            Mathf.Abs(horizontalDegrees) >
+            0.0001f
+        )
         {
-            /*
-             * Spin the galaxy like a basketball on a finger:
-             * around its vertical Y axis.
-             */
             transform.Rotate(
                 0f,
                 horizontalDegrees,
@@ -288,9 +348,14 @@ public sealed class GalaxyRotationController : MonoBehaviour
             );
         }
 
-        if (Mathf.Abs(verticalDegrees) > 0.0001f)
+        if (
+            Mathf.Abs(verticalDegrees) >
+            0.0001f
+        )
         {
-            float requestedVertical = verticalAngle + verticalDegrees;
+            float requestedVertical =
+                verticalAngle +
+                verticalDegrees;
 
             if (clampVerticalRotation)
             {
@@ -302,8 +367,12 @@ public sealed class GalaxyRotationController : MonoBehaviour
                     );
             }
 
-            float appliedVertical = requestedVertical - verticalAngle;
-            verticalAngle = requestedVertical;
+            float appliedVertical =
+                requestedVertical -
+                verticalAngle;
+
+            verticalAngle =
+                requestedVertical;
 
             transform.Rotate(
                 appliedVertical,
@@ -314,32 +383,96 @@ public sealed class GalaxyRotationController : MonoBehaviour
         }
     }
 
-    private static void ReadPointer(
+    private static bool ReadPointer(
         out bool down,
         out bool held,
         out bool up,
         out Vector2 position
     )
     {
-        if (Input.touchCount > 0)
+        down = false;
+        held = false;
+        up = false;
+        position = Vector2.zero;
+
+        // ---------------------------------------------------------
+        // TOUCH — iOS + Android
+        // ---------------------------------------------------------
+
+        if (Touchscreen.current != null)
         {
-            Touch touch = Input.GetTouch(0);
-            position = touch.position;
-            down = touch.phase == TouchPhase.Began;
-            held =
-                touch.phase == TouchPhase.Began ||
-                touch.phase == TouchPhase.Moved ||
-                touch.phase == TouchPhase.Stationary;
-            up =
-                touch.phase == TouchPhase.Ended ||
-                touch.phase == TouchPhase.Canceled;
-            return;
+            var touch =
+                Touchscreen.current.primaryTouch;
+
+            bool pressed =
+                touch.press.isPressed;
+
+            bool pressedThisFrame =
+                touch.press.wasPressedThisFrame;
+
+            bool releasedThisFrame =
+                touch.press.wasReleasedThisFrame;
+
+            if (
+                pressed ||
+                pressedThisFrame ||
+                releasedThisFrame
+            )
+            {
+                position =
+                    touch.position.ReadValue();
+
+                down =
+                    pressedThisFrame;
+
+                held =
+                    pressed;
+
+                up =
+                    releasedThisFrame;
+
+                return true;
+            }
         }
 
-        position = Input.mousePosition;
-        down = Input.GetMouseButtonDown(0);
-        held = Input.GetMouseButton(0);
-        up = Input.GetMouseButtonUp(0);
+        // ---------------------------------------------------------
+        // MOUSE — Editor / desktop
+        // ---------------------------------------------------------
+
+        if (Mouse.current != null)
+        {
+            bool pressed =
+                Mouse.current.leftButton.isPressed;
+
+            bool pressedThisFrame =
+                Mouse.current.leftButton.wasPressedThisFrame;
+
+            bool releasedThisFrame =
+                Mouse.current.leftButton.wasReleasedThisFrame;
+
+            if (
+                pressed ||
+                pressedThisFrame ||
+                releasedThisFrame
+            )
+            {
+                position =
+                    Mouse.current.position.ReadValue();
+
+                down =
+                    pressedThisFrame;
+
+                held =
+                    pressed;
+
+                up =
+                    releasedThisFrame;
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static float NormalizeAngle(float angle)

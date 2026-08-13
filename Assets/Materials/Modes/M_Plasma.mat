@@ -103,17 +103,17 @@ Material:
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _AspectRatio: 1
-    - _AudioBass: 0.020496678
-    - _AudioEnergy: 0.02510372
-    - _AudioHigh: 0.012511944
-    - _AudioMid: 0.020285541
+    - _AudioBass: 0.11133777
+    - _AudioEnergy: 0.084817894
+    - _AudioHigh: 0.03968842
+    - _AudioMid: 0.0662309
     - _AutoZoomSpeed: 0.05
     - _BandCount: 6
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BlendSmoothness: 0.4
     - _BlobCount: 5
-    - _BlobSize: 0.75
+    - _BlobSize: 0.7499931
     - _Brightness: 1.2
     - _BumpScale: 1
     - _CameraDistance: 2

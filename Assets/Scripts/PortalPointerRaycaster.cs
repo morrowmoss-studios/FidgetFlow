@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 [DisallowMultipleComponent]
 public sealed class PortalPointerRaycaster : MonoBehaviour
@@ -24,10 +25,12 @@ public sealed class PortalPointerRaycaster : MonoBehaviour
 
     private Vector2 pointerDownPosition;
     private float pointerDownTime;
+
     private bool pointerHeld;
     private bool pointerStartedOverUI;
 
-    private readonly RaycastHit[] hits = new RaycastHit[32];
+    private readonly RaycastHit[] hits =
+        new RaycastHit[32];
 
     private void Awake()
     {
@@ -44,23 +47,25 @@ public sealed class PortalPointerRaycaster : MonoBehaviour
 
     private void Update()
     {
-        ReadPointer(
-            out bool down,
-            out bool up,
-            out Vector2 position,
-            out int pointerId
-        );
+        if (!ReadPointer(
+                out bool down,
+                out bool up,
+                out Vector2 position))
+        {
+            return;
+        }
 
         if (down)
         {
             pointerHeld = true;
+
             pointerDownPosition = position;
             pointerDownTime = Time.unscaledTime;
 
             pointerStartedOverUI =
                 ignoreInputOverUI &&
                 EventSystem.current != null &&
-                EventSystem.current.IsPointerOverGameObject(pointerId);
+                EventSystem.current.IsPointerOverGameObject(-1);
         }
 
         if (!up || !pointerHeld)
@@ -86,8 +91,11 @@ public sealed class PortalPointerRaycaster : MonoBehaviour
             duration > maximumClickDuration
         )
         {
+            pointerStartedOverUI = false;
             return;
         }
+
+        pointerStartedOverUI = false;
 
         OpenPortalAt(position);
     }
@@ -100,7 +108,9 @@ public sealed class PortalPointerRaycaster : MonoBehaviour
         }
 
         Ray ray =
-            targetCamera.ScreenPointToRay(screenPosition);
+            targetCamera.ScreenPointToRay(
+                screenPosition
+            );
 
         int hitCount =
             Physics.RaycastNonAlloc(
@@ -111,8 +121,11 @@ public sealed class PortalPointerRaycaster : MonoBehaviour
                 QueryTriggerInteraction.Collide
             );
 
-        PortalController closestPortal = null;
-        float closestDistance = float.PositiveInfinity;
+        PortalClickTarget closestTarget = null;
+        PortalController fallbackPortal = null;
+
+        float closestDistance =
+            float.PositiveInfinity;
 
         for (int i = 0; i < hitCount; i++)
         {
@@ -123,6 +136,35 @@ public sealed class PortalPointerRaycaster : MonoBehaviour
                 continue;
             }
 
+            if (hit.distance >= closestDistance)
+            {
+                continue;
+            }
+
+            PortalClickTarget clickTarget =
+                hit.collider.GetComponent<PortalClickTarget>();
+
+            if (clickTarget == null)
+            {
+                clickTarget =
+                    hit.collider.GetComponentInParent<PortalClickTarget>();
+            }
+
+            if (
+                clickTarget != null &&
+                clickTarget.PortalController != null &&
+                !clickTarget.PortalController.IsOpening
+            )
+            {
+                closestTarget = clickTarget;
+                fallbackPortal = null;
+                closestDistance = hit.distance;
+
+                continue;
+            }
+
+            // Keeps compatibility with portal colliders that may not
+            // have PortalClickTarget attached yet.
             PortalController portal =
                 hit.collider.GetComponent<PortalController>();
 
@@ -134,46 +176,104 @@ public sealed class PortalPointerRaycaster : MonoBehaviour
 
             if (
                 portal != null &&
-                !portal.IsOpening &&
-                hit.distance < closestDistance
+                !portal.IsOpening
             )
             {
-                closestPortal = portal;
+                closestTarget = null;
+                fallbackPortal = portal;
                 closestDistance = hit.distance;
             }
         }
 
-        if (closestPortal != null)
+        if (closestTarget != null)
         {
-            closestPortal.OpenPortal();
-        }
-    }
-
-    private static void ReadPointer(
-        out bool down,
-        out bool up,
-        out Vector2 position,
-        out int pointerId
-    )
-    {
-        if (Input.touchCount > 0)
-        {
-            Touch touch = Input.GetTouch(0);
-
-            position = touch.position;
-            pointerId = touch.fingerId;
-            down = touch.phase == TouchPhase.Began;
-
-            up =
-                touch.phase == TouchPhase.Ended ||
-                touch.phase == TouchPhase.Canceled;
-
+            closestTarget.TryOpenPortal();
             return;
         }
 
-        position = Input.mousePosition;
-        pointerId = -1;
-        down = Input.GetMouseButtonDown(0);
-        up = Input.GetMouseButtonUp(0);
+        if (fallbackPortal != null)
+        {
+            fallbackPortal.OpenPortal();
+        }
+    }
+
+    private static bool ReadPointer(
+        out bool down,
+        out bool up,
+        out Vector2 position
+    )
+    {
+        down = false;
+        up = false;
+        position = Vector2.zero;
+
+        // ---------------------------------------------------------
+        // TOUCH
+        // iOS + Android
+        // ---------------------------------------------------------
+
+        if (Touchscreen.current != null)
+        {
+            var touch =
+                Touchscreen.current.primaryTouch;
+
+            bool pressed =
+                touch.press.isPressed;
+
+            bool pressedThisFrame =
+                touch.press.wasPressedThisFrame;
+
+            bool releasedThisFrame =
+                touch.press.wasReleasedThisFrame;
+
+            if (
+                pressed ||
+                pressedThisFrame ||
+                releasedThisFrame
+            )
+            {
+                position =
+                    touch.position.ReadValue();
+
+                down = pressedThisFrame;
+                up = releasedThisFrame;
+
+                return true;
+            }
+        }
+
+        // ---------------------------------------------------------
+        // MOUSE
+        // Unity Editor / desktop testing
+        // ---------------------------------------------------------
+
+        if (Mouse.current != null)
+        {
+            bool pressed =
+                Mouse.current.leftButton.isPressed;
+
+            bool pressedThisFrame =
+                Mouse.current.leftButton.wasPressedThisFrame;
+
+            bool releasedThisFrame =
+                Mouse.current.leftButton.wasReleasedThisFrame;
+
+            if (
+                pressed ||
+                pressedThisFrame ||
+                releasedThisFrame
+            )
+            {
+                position =
+                    Mouse.current.position.ReadValue();
+
+                down = pressedThisFrame;
+                up = releasedThisFrame;
+
+                return true;
+            }
+        }
+
+        return false;
     }
 }

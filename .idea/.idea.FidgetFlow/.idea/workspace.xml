@@ -6,7 +6,26 @@
   <component name="ChangeListManager">
     <list default="true" id="bff25256-b9c9-4daf-8040-961893ee88e9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FidgetFlow/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FidgetFlow/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/ModeMenuController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/ModeMenuController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_FibonacciTunnel.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_FibonacciTunnel.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_Kalidescope.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_Kalidescope.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_LavaLamp.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_LavaLamp.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_Plasma.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_Plasma.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_Starloom.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_Starloom.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Modes/M_UrchinZoom.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Modes/M_UrchinZoom.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_FibonacciTunnelPortalPreview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_FibonacciTunnelPortalPreview.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_KalidescopePortalPreview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_KalidescopePortalPreview.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_LavaLampPortalPreview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_LavaLampPortalPreview.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_PlasmaPortalPreview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_PlasmaPortalPreview.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_StarloomPortalPreview.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/PortalPreviews/M_StarloomPortalPreview.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/PerformanceTestRunInfo.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/PerformanceTestRunInfo.json.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/PerformanceTestRunSettings.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/PerformanceTestRunSettings.json.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/GalaxyRotationController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/GalaxyRotationController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/PortalClickTarget.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PortalClickTarget.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/PortalPointerRaycaster.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PortalPointerRaycaster.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/Packages/com.unity.probuilder/Settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/Packages/com.unity.probuilder/Settings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -125,7 +144,7 @@
       <workItem from="1782402633607" duration="4000" />
       <workItem from="1783617427864" duration="6279000" />
       <workItem from="1783779205618" duration="117182000" />
-      <workItem from="1785437373245" duration="25545000" />
+      <workItem from="1785437373245" duration="27644000" />
     </task>
     <servers />
   </component>
