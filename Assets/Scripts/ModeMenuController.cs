@@ -1,11 +1,16 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 
 public class ModeMenuController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private RectTransform drawerRoot;
+
+    [Header("Direct Input Buttons")]
+    [SerializeField] private RectTransform hamburgerButton;
+    [SerializeField] private RectTransform backButton;
 
     [Header("Drawer Positions")]
     [SerializeField] private Vector2 closedPosition = new Vector2(0f, 200f);
@@ -17,17 +22,115 @@ public class ModeMenuController : MonoBehaviour
     private bool isOpen = false;
     private Coroutine moveCoroutine;
 
+    // Prevents one physical press from being processed more than once.
+    private bool pointerWasPressed = false;
+
     private void Start()
     {
         isOpen = false;
 
         if (drawerRoot == null)
         {
-            Debug.LogError("[ModeMenuController] DrawerRoot is not assigned.", this);
+            Debug.LogError(
+                "[ModeMenuController] DrawerRoot is not assigned.",
+                this
+            );
+
             return;
         }
 
         StartCoroutine(ForceClosedAfterLayout());
+    }
+
+    private void Update()
+    {
+        Vector2 screenPosition;
+        bool pointerPressed;
+
+        // ------------------------------------------------------------
+        // TOUCH INPUT
+        // iOS + Android
+        // ------------------------------------------------------------
+
+        if (Touchscreen.current != null)
+        {
+            var touch = Touchscreen.current.primaryTouch;
+
+            pointerPressed = touch.press.isPressed;
+            screenPosition = touch.position.ReadValue();
+        }
+
+        // ------------------------------------------------------------
+        // MOUSE INPUT
+        // Unity Editor
+        // ------------------------------------------------------------
+
+        else if (Mouse.current != null)
+        {
+            pointerPressed = Mouse.current.leftButton.isPressed;
+            screenPosition = Mouse.current.position.ReadValue();
+        }
+
+        else
+        {
+            pointerPressed = false;
+            screenPosition = Vector2.zero;
+        }
+
+        // We only want the INITIAL press.
+        if (pointerPressed && !pointerWasPressed)
+        {
+            HandlePointerDown(screenPosition);
+        }
+
+        pointerWasPressed = pointerPressed;
+    }
+
+    private void HandlePointerDown(Vector2 screenPosition)
+    {
+        // ------------------------------------------------------------
+        // HAMBURGER
+        // ------------------------------------------------------------
+
+        if (
+            hamburgerButton != null &&
+            RectTransformUtility.RectangleContainsScreenPoint(
+                hamburgerButton,
+                screenPosition,
+                null
+            )
+        )
+        {
+            Debug.Log(
+                $"[ModeMenuController] Hamburger direct input detected at {screenPosition}"
+            );
+
+            ToggleMenu();
+            return;
+        }
+
+        // ------------------------------------------------------------
+        // BACK
+        //
+        // Only allow the back button while the drawer is open.
+        // ------------------------------------------------------------
+
+        if (
+            isOpen &&
+            backButton != null &&
+            RectTransformUtility.RectangleContainsScreenPoint(
+                backButton,
+                screenPosition,
+                null
+            )
+        )
+        {
+            Debug.Log(
+                $"[ModeMenuController] Back direct input detected at {screenPosition}"
+            );
+
+            GoBackToPortalHub();
+        }
     }
 
     private IEnumerator ForceClosedAfterLayout()
@@ -122,9 +225,13 @@ public class ModeMenuController : MonoBehaviour
         drawerRoot.anchoredPosition = target;
         moveCoroutine = null;
     }
-    
+
     public void GoBackToPortalHub()
     {
+        Debug.Log(
+            "[ModeMenuController] Loading PortalHub."
+        );
+
         SceneManager.LoadScene("PortalHub");
     }
 }

@@ -132,7 +132,12 @@ public class AudioReactivityManager : MonoBehaviour
             return;
         }
 
+#if UNITY_IOS && !UNITY_EDITOR
+    IOSAudioSession.EnableMixedRecording();
+#endif
+
         _micDevice = Microphone.devices[0];
+
         _micClip = Microphone.Start(
             _micDevice,
             true,
