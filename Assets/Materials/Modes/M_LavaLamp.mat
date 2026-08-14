@@ -86,10 +86,10 @@ Material:
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _AspectRatio: 1.4
-    - _AudioBass: 0.047135785
-    - _AudioEnergy: 0.029742595
-    - _AudioHigh: 0.01618262
-    - _AudioMid: 0.027147247
+    - _AudioBass: 0.042380802
+    - _AudioEnergy: 0.03207432
+    - _AudioHigh: 0.017131222
+    - _AudioMid: 0.020070797
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BlendSmoothness: 0.8

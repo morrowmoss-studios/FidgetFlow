@@ -60,6 +60,8 @@ public class AudioReactivityManager : MonoBehaviour
     private AudioClip _micClip;
     private string _micDevice;
 
+    private bool _iosMicRestarting;
+
     private readonly float[] _spectrumData = new float[1024];
     private readonly float[] _micSamples = new float[1024];
 
@@ -126,28 +128,57 @@ public class AudioReactivityManager : MonoBehaviour
 
     private void StartMic()
     {
+#if UNITY_IOS && !UNITY_EDITOR
+
+        bool started =
+            IOSAudioSession.StartMicrophone();
+
+        if (started)
+        {
+            Debug.Log(
+                "[AudioReactivityManager] Native iOS microphone started."
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                "[AudioReactivityManager] Native iOS microphone failed to start."
+            );
+        }
+
+#else
+
         if (Microphone.devices.Length == 0)
         {
-            Debug.LogWarning("No microphone device found.");
+            Debug.LogWarning(
+                "No microphone device found."
+            );
+
             return;
         }
 
-#if UNITY_IOS && !UNITY_EDITOR
-    IOSAudioSession.EnableMixedRecording();
+        _micDevice =
+            Microphone.devices[0];
+
+        _micClip =
+            Microphone.Start(
+                _micDevice,
+                true,
+                1,
+                AudioSettings.outputSampleRate
+            );
+
 #endif
-
-        _micDevice = Microphone.devices[0];
-
-        _micClip = Microphone.Start(
-            _micDevice,
-            true,
-            1,
-            AudioSettings.outputSampleRate
-        );
     }
 
     private void StopMic()
     {
+#if UNITY_IOS && !UNITY_EDITOR
+
+        IOSAudioSession.StopMicrophone();
+
+#else
+
         if (string.IsNullOrEmpty(_micDevice))
         {
             return;
@@ -157,7 +188,101 @@ public class AudioReactivityManager : MonoBehaviour
 
         _micDevice = null;
         _micClip = null;
+
+#endif
     }
+
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        if (CurrentMode != AudioMode.Mic)
+        {
+            return;
+        }
+
+#if UNITY_IOS && !UNITY_EDITOR
+
+        if (pauseStatus)
+        {
+            Debug.Log(
+                "[AudioReactivityManager] App paused — stopping native iOS microphone."
+            );
+
+            IOSAudioSession.StopMicrophone();
+        }
+        else
+        {
+            Debug.Log(
+                "[AudioReactivityManager] App resumed — scheduling iOS microphone restart."
+            );
+
+            StartCoroutine(
+                RestartIOSMicrophoneAfterResume()
+            );
+        }
+
+#endif
+    }
+
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if (
+            !hasFocus ||
+            CurrentMode != AudioMode.Mic
+        )
+        {
+            return;
+        }
+
+#if UNITY_IOS && !UNITY_EDITOR
+
+        Debug.Log(
+            "[AudioReactivityManager] App regained focus — checking iOS microphone."
+        );
+
+        StartCoroutine(
+            RestartIOSMicrophoneAfterResume()
+        );
+
+#endif
+    }
+
+#if UNITY_IOS && !UNITY_EDITOR
+    private IEnumerator RestartIOSMicrophoneAfterResume()
+    {
+        if (_iosMicRestarting)
+        {
+            yield break;
+        }
+
+        _iosMicRestarting = true;
+
+        // Give iOS time to finish restoring the app/audio session.
+        yield return null;
+        yield return new WaitForSecondsRealtime(0.25f);
+
+        IOSAudioSession.StopMicrophone();
+
+        yield return null;
+
+        bool started =
+            IOSAudioSession.StartMicrophone();
+
+        if (started)
+        {
+            Debug.Log(
+                "[AudioReactivityManager] iOS microphone restarted after resume."
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                "[AudioReactivityManager] Failed to restart iOS microphone after resume."
+            );
+        }
+
+        _iosMicRestarting = false;
+    }
+#endif
 
     private IEnumerator MonitorAudioRoute()
     {
@@ -223,14 +348,44 @@ public class AudioReactivityManager : MonoBehaviour
 
     private void AnalyzeMic()
     {
-        if (_micClip == null || string.IsNullOrEmpty(_micDevice))
+#if UNITY_IOS && !UNITY_EDITOR
+
+        int samplesRead =
+            IOSAudioSession.GetMicrophoneSamples(
+                _micSamples
+            );
+
+        if (samplesRead <= 0)
+        {
+            DecayTowardSilence();
+            return;
+        }
+
+        for (int i = 0; i < _micSamples.Length; i++)
+        {
+            _spectrumData[i] =
+                Mathf.Abs(
+                    _micSamples[i]
+                );
+        }
+
+        ProcessSpectrum();
+
+#else
+
+        if (
+            _micClip == null ||
+            string.IsNullOrEmpty(_micDevice)
+        )
         {
             DecayTowardSilence();
             return;
         }
 
         int micPosition =
-            Microphone.GetPosition(_micDevice);
+            Microphone.GetPosition(
+                _micDevice
+            );
 
         if (micPosition < _micSamples.Length)
         {
@@ -245,10 +400,14 @@ public class AudioReactivityManager : MonoBehaviour
         for (int i = 0; i < _micSamples.Length; i++)
         {
             _spectrumData[i] =
-                Mathf.Abs(_micSamples[i]);
+                Mathf.Abs(
+                    _micSamples[i]
+                );
         }
 
         ProcessSpectrum();
+
+#endif
     }
 
     private void ProcessSpectrum()
@@ -293,13 +452,6 @@ public class AudioReactivityManager : MonoBehaviour
                 rawHigh *
                 highSensitivity
             );
-
-        /*
-            Transient boost makes sudden increases punch harder.
-
-            This is what lets bass hits feel immediate instead of
-            waiting for the smoothed value to crawl upward.
-        */
 
         float bassTransient =
             Mathf.Max(
@@ -370,13 +522,6 @@ public class AudioReactivityManager : MonoBehaviour
                 targetHigh
             );
 
-        /*
-            Energy is intentionally responsive too.
-
-            The previous version derived energy from already heavily
-            smoothed channels, which added even more perceived delay.
-        */
-
         float targetEnergy =
             Mathf.Clamp01(
                 _bass * 0.50f +
@@ -402,14 +547,6 @@ public class AudioReactivityManager : MonoBehaviour
             target > current
                 ? attackSpeed
                 : decaySpeed;
-
-        /*
-            Exponential smoothing stays consistent across frame rates.
-
-            Mathf.Lerp with Time.deltaTime * speed can behave oddly
-            when frame rate drops, which matters while testing heavy
-            shaders.
-        */
 
         float interpolation =
             1f -
