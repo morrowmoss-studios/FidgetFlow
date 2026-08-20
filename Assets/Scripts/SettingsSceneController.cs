@@ -4,43 +4,41 @@ using UnityEngine.SceneManagement;
 
 public class SettingsSceneController : MonoBehaviour
 {
-    [Header("Settings Universe Canvases")]
-    [SerializeField] private GameObject universeCanvas;
+    [Header("Canvases")]
+    [SerializeField] private GameObject settingsUniverseCanvas;
     [SerializeField] private GameObject accessibilityCanvas;
     [SerializeField] private GameObject audioCanvas;
     [SerializeField] private GameObject legalCanvas;
 
-    [Header("Accessibility Value Text")]
-    [SerializeField] private TMP_Text colorVisionValueText;
-    [SerializeField] private TMP_Text visualIntensityValueText;
-    [SerializeField] private TMP_Text motionIntensityValueText;
-    [SerializeField] private TMP_Text hapticsValueText;
+    [Header("Accessibility Values")]
+    [SerializeField] private TMP_Text colorVisionValue;
+    [SerializeField] private TMP_Text visualIntensityValue;
+    [SerializeField] private TMP_Text motionIntensityValue;
+    [SerializeField] private TMP_Text hapticsValue;
 
-    private const string HapticsPrefsKey =
-        "FidgetFlow_HapticsEnabled";
-
+    private const string HapticsKey = "FidgetFlow_Haptics";
     private bool hapticsEnabled = true;
 
     private void Start()
     {
         hapticsEnabled =
             PlayerPrefs.GetInt(
-                HapticsPrefsKey,
+                HapticsKey,
                 1
             ) == 1;
 
-        ShowUniverse();
-        RefreshAllAccessibilityLabels();
+        ShowSettingsUniverse();
+        RefreshAccessibilityValues();
     }
 
-    // =========================================================
+    // ---------------------------------------------------------
     // CANVAS NAVIGATION
-    // =========================================================
+    // ---------------------------------------------------------
 
-    public void ShowUniverse()
+    public void ShowSettingsUniverse()
     {
         SetCanvasState(
-            universe: true,
+            settingsUniverse: true,
             accessibility: false,
             audio: false,
             legal: false
@@ -50,19 +48,19 @@ public class SettingsSceneController : MonoBehaviour
     public void ShowAccessibility()
     {
         SetCanvasState(
-            universe: false,
+            settingsUniverse: false,
             accessibility: true,
             audio: false,
             legal: false
         );
 
-        RefreshAllAccessibilityLabels();
+        RefreshAccessibilityValues();
     }
 
     public void ShowAudio()
     {
         SetCanvasState(
-            universe: false,
+            settingsUniverse: false,
             accessibility: false,
             audio: true,
             legal: false
@@ -72,7 +70,7 @@ public class SettingsSceneController : MonoBehaviour
     public void ShowLegal()
     {
         SetCanvasState(
-            universe: false,
+            settingsUniverse: false,
             accessibility: false,
             audio: false,
             legal: true
@@ -80,15 +78,15 @@ public class SettingsSceneController : MonoBehaviour
     }
 
     private void SetCanvasState(
-        bool universe,
+        bool settingsUniverse,
         bool accessibility,
         bool audio,
         bool legal
     )
     {
-        if (universeCanvas != null)
+        if (settingsUniverseCanvas != null)
         {
-            universeCanvas.SetActive(universe);
+            settingsUniverseCanvas.SetActive(settingsUniverse);
         }
 
         if (accessibilityCanvas != null)
@@ -112,9 +110,9 @@ public class SettingsSceneController : MonoBehaviour
         SceneManager.LoadScene("PortalHub");
     }
 
-    // =========================================================
+    // ---------------------------------------------------------
     // COLOR VISION
-    // =========================================================
+    // ---------------------------------------------------------
 
     public void PreviousColorVision()
     {
@@ -139,7 +137,7 @@ public class SettingsSceneController : MonoBehaviour
             (ColorVisionAccessibility.ColorVisionMode)current
         );
 
-        RefreshColorVisionLabel();
+        RefreshColorVision();
     }
 
     public void NextColorVision()
@@ -165,12 +163,12 @@ public class SettingsSceneController : MonoBehaviour
             (ColorVisionAccessibility.ColorVisionMode)current
         );
 
-        RefreshColorVisionLabel();
+        RefreshColorVision();
     }
 
-    // =========================================================
+    // ---------------------------------------------------------
     // VISUAL INTENSITY
-    // =========================================================
+    // ---------------------------------------------------------
 
     public void PreviousVisualIntensity()
     {
@@ -195,7 +193,7 @@ public class SettingsSceneController : MonoBehaviour
             (VisualIntensityAccessibility.VisualLevel)current
         );
 
-        RefreshVisualIntensityLabel();
+        RefreshVisualIntensity();
     }
 
     public void NextVisualIntensity()
@@ -221,12 +219,12 @@ public class SettingsSceneController : MonoBehaviour
             (VisualIntensityAccessibility.VisualLevel)current
         );
 
-        RefreshVisualIntensityLabel();
+        RefreshVisualIntensity();
     }
 
-    // =========================================================
+    // ---------------------------------------------------------
     // MOTION INTENSITY
-    // =========================================================
+    // ---------------------------------------------------------
 
     public void PreviousMotionIntensity()
     {
@@ -251,7 +249,7 @@ public class SettingsSceneController : MonoBehaviour
             (MotionAccessibility.MotionLevel)current
         );
 
-        RefreshMotionIntensityLabel();
+        RefreshMotionIntensity();
     }
 
     public void NextMotionIntensity()
@@ -277,12 +275,12 @@ public class SettingsSceneController : MonoBehaviour
             (MotionAccessibility.MotionLevel)current
         );
 
-        RefreshMotionIntensityLabel();
+        RefreshMotionIntensity();
     }
 
-    // =========================================================
+    // ---------------------------------------------------------
     // HAPTICS
-    // =========================================================
+    // ---------------------------------------------------------
 
     public void ToggleHaptics()
     {
@@ -290,73 +288,68 @@ public class SettingsSceneController : MonoBehaviour
             !hapticsEnabled;
 
         PlayerPrefs.SetInt(
-            HapticsPrefsKey,
+            HapticsKey,
             hapticsEnabled ? 1 : 0
         );
 
         PlayerPrefs.Save();
 
-        RefreshHapticsLabel();
+        RefreshHaptics();
     }
 
-    public bool HapticsEnabled()
-    {
-        return hapticsEnabled;
-    }
-
-    // =========================================================
+    // ---------------------------------------------------------
     // LABEL REFRESH
-    // =========================================================
+    // ---------------------------------------------------------
 
-    private void RefreshAllAccessibilityLabels()
+    private void RefreshAccessibilityValues()
     {
-        RefreshColorVisionLabel();
-        RefreshVisualIntensityLabel();
-        RefreshMotionIntensityLabel();
-        RefreshHapticsLabel();
+        RefreshColorVision();
+        RefreshVisualIntensity();
+        RefreshMotionIntensity();
+        RefreshHaptics();
     }
 
-    private void RefreshColorVisionLabel()
+    private void RefreshColorVision()
     {
-        if (colorVisionValueText == null)
+        if (colorVisionValue == null)
         {
             return;
         }
 
-        colorVisionValueText.text =
+        colorVisionValue.text =
             ColorVisionAccessibility.CurrentMode.ToString();
     }
 
-    private void RefreshVisualIntensityLabel()
+    private void RefreshVisualIntensity()
     {
-        if (visualIntensityValueText == null)
+        if (visualIntensityValue == null)
         {
             return;
         }
 
-        visualIntensityValueText.text =
+        visualIntensityValue.text =
             VisualIntensityAccessibility.CurrentLevel.ToString();
     }
 
-    private void RefreshMotionIntensityLabel()
+    private void RefreshMotionIntensity()
     {
-        if (motionIntensityValueText == null)
+        if (motionIntensityValue == null)
         {
             return;
         }
 
-        motionIntensityValueText.text =
+        motionIntensityValue.text =
             MotionAccessibility.CurrentLevel.ToString();
     }
 
-    private void RefreshHapticsLabel()
+    private void RefreshHaptics()
     {
-        if (hapticsValueText == null)
+        if (hapticsValue == null)
         {
             return;
         }
 
-        hapticsValueText.text =
+        hapticsValue.text =
             hapticsEnabled
                 ? "On"
                 : "Off";
