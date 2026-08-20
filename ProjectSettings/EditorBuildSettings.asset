@@ -18,6 +18,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Settings.unity
     guid: 21e5fa3642db14e9690c1135261a7192
   - enabled: 1
+    path: Assets/Scenes/MusicLibrary.unity
+    guid: 9f76d9016bd074b32b03d1bbf01fe031
+  - enabled: 1
     path: Assets/Scenes/PortalHub.unity
     guid: d575b6e6f74a84ea99f27311dd761048
   - enabled: 1
