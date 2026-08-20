@@ -5503,10 +5503,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 923010282}
-  - {fileID: 1499840774}
   - {fileID: 465861396}
   - {fileID: 1009204300}
   - {fileID: 874592220}
+  - {fileID: 1499840774}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -5788,6 +5788,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1376726437}
+  - component: {fileID: 1376726438}
   m_Layer: 0
   m_Name: SettingsSceneController
   m_TagString: Untagged
@@ -5810,6 +5811,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1376726438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1376726436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5622ac7bac176465abdf8ea8f3ab77fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SettingsSceneController
+  universeCanvas: {fileID: 1348833451}
+  accessibilityCanvas: {fileID: 79079324}
+  audioCanvas: {fileID: 775672955}
+  legalCanvas: {fileID: 1423202911}
+  colorVisionValueText: {fileID: 2120040108}
+  visualIntensityValueText: {fileID: 2676792}
+  motionIntensityValueText: {fileID: 285612467}
+  hapticsValueText: {fileID: 841908619}
 --- !u!1 &1386046595
 GameObject:
   m_ObjectHideFlags: 0
